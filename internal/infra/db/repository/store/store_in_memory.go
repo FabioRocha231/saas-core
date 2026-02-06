@@ -25,12 +25,10 @@ func (r *Repo) Create(ctx context.Context, s *store.Store) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	// garante unicidade por ID (se você gerar ID fora)
 	if _, exists := r.byID[s.ID]; exists {
 		return fmt.Errorf("id %s already exists", s.ID)
 	}
 
-	// garante unicidade por slug
 	if id, exists := r.bySlug[s.Slug]; exists && id != "" {
 		return fmt.Errorf("Slug %s already exists", s.Slug)
 	}
