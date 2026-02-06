@@ -4,7 +4,7 @@ tmp_dir = "tmp"
 
 [build]
   # Ajuste o entrypoint do seu projeto:
-  cmd = "go build -o ./tmp/app ./cmd/api"
+  cmd = "go build -buildvcs=false -o ./tmp/app ./cmd/api"
   bin = "tmp/app"
   delay = 200
   include_ext = ["go", "tpl", "tmpl", "html"]
