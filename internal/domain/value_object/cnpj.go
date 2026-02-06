@@ -7,7 +7,7 @@ import (
 )
 
 type Cnpj struct {
-	Value string // sempre armazenado como 14 dígitos (somente números)
+	value string // sempre armazenado como 14 dígitos (somente números)
 }
 
 var (
@@ -17,25 +17,25 @@ var (
 
 func NewCnpj(value string) *Cnpj {
 	d := digitsOnly(value)
-	return &Cnpj{Value: d}
+	return &Cnpj{value: d}
 }
 
 // Validate valida tamanho + dígitos verificadores.
 func (c *Cnpj) Validate() error {
-	if len(c.Value) != 14 {
+	if len(c.value) != 14 {
 		return ErrCnpjInvalidLength
 	}
-	if allSameDigits(c.Value) {
+	if allSameDigits(c.value) {
 		return ErrCnpjInvalid
 	}
 
 	// calcula 1º dígito verificador
-	d1 := calcCnpjDigit(c.Value[:12], []int{5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2})
+	d1 := calcCnpjDigit(c.value[:12], []int{5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2})
 	// calcula 2º dígito verificador
-	d2 := calcCnpjDigit(c.Value[:12]+fmt.Sprintf("%d", d1), []int{6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2})
+	d2 := calcCnpjDigit(c.value[:12]+fmt.Sprintf("%d", d1), []int{6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2})
 
 	// compara com os dígitos informados
-	if c.Value[12] != byte('0'+d1) || c.Value[13] != byte('0'+d2) {
+	if c.value[12] != byte('0'+d1) || c.value[13] != byte('0'+d2) {
 		return ErrCnpjInvalid
 	}
 	return nil
@@ -43,16 +43,16 @@ func (c *Cnpj) Validate() error {
 
 // Masked retorna o CNPJ mascarado: 00.000.000/0000-00
 func (c *Cnpj) Masked() (string, error) {
-	if len(c.Value) != 14 {
+	if len(c.value) != 14 {
 		return "", ErrCnpjInvalidLength
 	}
-	v := c.Value
+	v := c.value
 	return fmt.Sprintf("%s.%s.%s/%s-%s", v[0:2], v[2:5], v[5:8], v[8:12], v[12:14]), nil
 }
 
 // Digits retorna o valor "cru" (só números).
 func (c *Cnpj) Digits() string {
-	return c.Value
+	return c.value
 }
 
 // ---------- helpers ----------

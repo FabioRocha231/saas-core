@@ -5,3 +5,6 @@ content-type: application/json
   "name": "Empresa Fantasia",
   "cnpj": "64.240.826/0001-00"
 }
+
+###
+GET http://localhost:8080/store/fd3553d0-803c-4b64-a212-0450f12b5c2a HTTP/1.1
