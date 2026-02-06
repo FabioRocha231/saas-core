@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	httpRouter "github.com/FabioRocha231/saas-core/internal/infra/http"
+	bootstrap "github.com/FabioRocha231/saas-core/internal/infra/http"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,7 +27,7 @@ func main() {
 	r := gin.New()
 	
 	// Rotas
-	httpRouter.RoutesBootstrap(r)
+	bootstrap.RegisterRoutes(r)
 
 	// ===== HTTP Server com timeouts =====
 	srv := &http.Server{
