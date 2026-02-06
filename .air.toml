@@ -1,0 +1,15 @@
+# .air.toml
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  # Ajuste o entrypoint do seu projeto:
+  cmd = "go build -o ./tmp/app ./cmd/api"
+  bin = "tmp/app"
+  delay = 200
+  include_ext = ["go", "tpl", "tmpl", "html"]
+  exclude_dir = ["tmp", "vendor", ".git"]
+  include_dir = ["cmd", "internal"]
+
+[log]
+  time = true
