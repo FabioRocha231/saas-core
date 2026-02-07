@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/entity"
 	valueobject "github.com/FabioRocha231/saas-core/internal/domain/value_object"
@@ -31,7 +32,7 @@ func NewCreateStoreUsecase(storeRepository repositoryPorts.StoreRepository, ctx 
 func (uc *CreateStoreUsecase) Execute(input CreateStoreInput) (*CreateStoreOutput, error) {
 	cnpj := valueobject.NewCnpj(input.Cnpj)
 	if err := cnpj.Validate(); err != nil {
-		return nil, err
+		return nil, errx.New(errx.CodeInvalid, "invalid cnpj")
 	}
 
 	store := &entity.Store{

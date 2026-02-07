@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 	"net/http"
 	"strings"
 
@@ -33,69 +34,116 @@ func (h *UserHandler) Create(ctx *gin.Context) {
 	var req CreateUserRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, HttpResponse{Status: "error", Error: err.Error(), Message: "invalid request"})
+		respondErr(ctx, errx.New(errx.CodeInternal, err.Error()))
 		return
 	}
 
 	if strings.TrimSpace(req.Name) == "" {
-		ctx.JSON(http.StatusBadRequest, HttpResponse{Status: "error", Error: "invalid request", Message: "name are required"})
+		respondErr(ctx, errx.New(errx.CodeInvalid, "name are required"))
 		return
 	}
 
 	if strings.TrimSpace(req.Email) == "" {
-		ctx.JSON(http.StatusBadRequest, HttpResponse{Status: "error", Error: "invalid request", Message: "email are required"})
+		respondErr(ctx, errx.New(errx.CodeInvalid, "email are required"))
 		return
 	}
 
 	if strings.TrimSpace(req.Password) == "" {
-		ctx.JSON(http.StatusBadRequest, HttpResponse{Status: "error", Error: "invalid request", Message: "password are required"})
+		respondErr(ctx, errx.New(errx.CodeInvalid, "password are required"))
 		return
 	}
 
 	if strings.TrimSpace(req.Cpf) == "" {
-		ctx.JSON(http.StatusBadRequest, HttpResponse{Status: "error", Error: "invalid request", Message: "cpf are required"})
+		respondErr(ctx, errx.New(errx.CodeInvalid, "cpf are required"))
 		return
 	}
 
 	if strings.TrimSpace(req.Phone) == "" {
-		ctx.JSON(http.StatusBadRequest, HttpResponse{Status: "error", Error: "invalid request", Message: "phone are required"})
+		respondErr(ctx, errx.New(errx.CodeInvalid, "phone are required"))
 		return
 	}
 
 	if strings.TrimSpace(req.Status) == "" {
-		ctx.JSON(http.StatusBadRequest, HttpResponse{Status: "error", Error: "invalid request", Message: "status are required"})
+		respondErr(ctx, errx.New(errx.CodeInvalid, "status are required"))
 		return
 	}
 
 	if strings.TrimSpace(req.Role) == "" {
-		ctx.JSON(http.StatusBadRequest, HttpResponse{Status: "error", Error: "invalid request", Message: "role are required"})
+		respondErr(ctx, errx.New(errx.CodeInvalid, "role are required"))
 		return
 	}
 
 	uc := usecase.NewCreateUserUsecase(h.userRepository, ctx, h.uuid)
-	usecaseOutput, err := uc.Execute(usecase.CreateUserInput{Name: req.Name, Email: req.Email, Cpf: req.Cpf, Password: req.Password, Phone: req.Phone, Status: req.Status, Role: req.Role})
+	usecaseOutput, err := uc.Execute(usecase.CreateUserInput{
+		Name:     req.Name,
+		Email:    req.Email,
+		Cpf:      req.Cpf,
+		Password: req.Password,
+		Phone:    req.Phone,
+		Status:   req.Status,
+		Role:     req.Role,
+	})
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, HttpResponse{Status: "error", Error: err.Error(), Message: "error creating user"})
+		respondErr(ctx, err)
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, HttpResponse{Status: "succsess", Message: "user created", Data: usecaseOutput})
+	respondOK(ctx, http.StatusCreated, usecaseOutput)
 }
 
 func (h *UserHandler) GetByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 
 	if id == "" {
-		ctx.JSON(http.StatusBadRequest, HttpResponse{Status: "error", Error: "invalid request", Message: "id are required"})
+		respondErr(ctx, errx.New(errx.CodeInvalid, "missing id"))
 		return
 	}
 	uc := usecase.NewGetUserByIdUsecase(h.userRepository, h.uuid, ctx)
 
 	output, err := uc.Execute(usecase.GetUserByIdInput{ID: id})
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, HttpResponse{Status: "error", Error: err.Error(), Message: "error getting user"})
+		respondErr(ctx, err)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, HttpResponse{Status: "success", Message: "user found", Data: output})
+	respondOK(ctx, http.StatusOK, output)
+}
+
+func (h *UserHandler) GetByEmail(ctx *gin.Context) {
+	email := ctx.Param("email")
+
+	if email == "" {
+		respondErr(ctx, errx.New(errx.CodeInvalid, "missing email"))
+		return
+	}
+
+	uc := usecase.NewGetUserByEmailUsecase(h.userRepository, h.uuid, ctx)
+
+	output, err := uc.Execute(usecase.GetUserByEmailInput{Email: email})
+	if err != nil {
+		respondErr(ctx, err)
+		return
+	}
+
+	respondOK(ctx, http.StatusOK, output)
+}
+
+func (h *UserHandler) GetByCpf(ctx *gin.Context) {
+	cpf := ctx.Param("cpf")
+
+	if cpf == "" {
+		respondErr(ctx, errx.New(errx.CodeInvalid, "missing cpf"))
+		return
+	}
+
+	uc := usecase.NewGetUserByCpfUsecase(h.userRepository, h.uuid, ctx)
+
+	output, err := uc.Execute(usecase.GetUserByCpfInput{Cpf: cpf})
+
+	if err != nil {
+		respondErr(ctx, err)
+		return
+	}
+
+	respondOK(ctx, http.StatusOK, output)
 }

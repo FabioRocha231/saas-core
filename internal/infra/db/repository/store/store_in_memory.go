@@ -2,7 +2,7 @@ package memorystore
 
 import (
 	"context"
-	"fmt"
+	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 	"sync"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/entity"
@@ -26,11 +26,11 @@ func (r *Repo) Create(ctx context.Context, s *entity.Store) error {
 	defer r.mu.Unlock()
 
 	if _, exists := r.byID[s.ID]; exists {
-		return fmt.Errorf("id %s already exists", s.ID)
+		return errx.F(errx.CodeConflict, "id %s already exists", s.ID)
 	}
 
 	if id, exists := r.bySlug[s.Slug]; exists && id != "" {
-		return fmt.Errorf("Slug %s already exists", s.Slug)
+		return errx.F(errx.CodeConflict, "Slug %s already exists", s.Slug)
 	}
 
 	cp := *s
@@ -46,7 +46,7 @@ func (r *Repo) GetByID(ctx context.Context, id string) (*entity.Store, error) {
 
 	s, ok := r.byID[id]
 	if !ok {
-		return nil, fmt.Errorf("Store not found!")
+		return nil, errx.New(errx.CodeNotFound, "Store not found")
 	}
 
 	cp := *s
@@ -59,12 +59,12 @@ func (r *Repo) GetBySlug(ctx context.Context, slug string) (*entity.Store, error
 
 	id, ok := r.bySlug[slug]
 	if !ok || id == "" {
-		return nil, fmt.Errorf("Store not found!")
+		return nil, errx.New(errx.CodeNotFound, "Store not found")
 	}
 
 	s, ok := r.byID[id]
 	if !ok {
-		return nil, fmt.Errorf("Store not found!")
+		return nil, errx.New(errx.CodeNotFound, "Store not found")
 	}
 
 	cp := *s

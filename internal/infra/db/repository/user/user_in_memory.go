@@ -2,16 +2,11 @@ package memoryuser
 
 import (
 	"context"
-	"errors"
+	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 	"sync"
 	"time"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/entity"
-)
-
-var (
-	ErrUserAlreadyExists = errors.New("user already exists")
-	ErrUserNotFound      = errors.New("user not found")
 )
 
 type Repo struct {
@@ -33,16 +28,16 @@ func (r *Repo) Create(ctx context.Context, u *entity.User) error {
 	_ = ctx
 
 	if u == nil {
-		return errors.New("nil user")
+		return errx.New(errx.CodeInvalid, "missing user")
 	}
 	if u.ID == "" {
-		return errors.New("missing id")
+		return errx.New(errx.CodeInvalid, "missing id")
 	}
 	if u.Cpf == "" {
-		return errors.New("missing cpf")
+		return errx.New(errx.CodeInvalid, "missing cpf")
 	}
 	if u.Email == "" {
-		return errors.New("missing email")
+		return errx.New(errx.CodeInvalid, "missing email")
 	}
 
 	now := time.Now()
@@ -51,15 +46,15 @@ func (r *Repo) Create(ctx context.Context, u *entity.User) error {
 	defer r.mu.Unlock()
 
 	if _, ok := r.byID[u.ID]; ok {
-		return ErrUserAlreadyExists
+		return errx.New(errx.CodeConflict, "user already exists")
 	}
 
 	if existingID, ok := r.byCpf[u.Cpf]; ok && existingID != "" {
-		return ErrUserAlreadyExists
+		return errx.New(errx.CodeConflict, "user already exists")
 	}
 
 	if existingID, ok := r.byMail[u.Email]; ok && existingID != "" {
-		return ErrUserAlreadyExists
+		return errx.New(errx.CodeConflict, "user already exists")
 	}
 
 	if u.Status == "" {
@@ -86,7 +81,7 @@ func (r *Repo) GetByID(ctx context.Context, id string) (*entity.User, error) {
 	_ = ctx
 
 	if id == "" {
-		return nil, errors.New("missing id")
+		return nil, errx.New(errx.CodeInvalid, "missing id")
 	}
 
 	r.mu.RLock()
@@ -94,7 +89,7 @@ func (r *Repo) GetByID(ctx context.Context, id string) (*entity.User, error) {
 	r.mu.RUnlock()
 
 	if !ok || u == nil {
-		return nil, ErrUserNotFound
+		return nil, errx.New(errx.CodeNotFound, "user not found")
 	}
 	return cloneUser(u), nil
 }
@@ -103,20 +98,20 @@ func (r *Repo) GetByCpf(ctx context.Context, cpf string) (*entity.User, error) {
 	_ = ctx
 
 	if cpf == "" {
-		return nil, errors.New("missing cpf")
+		return nil, errx.New(errx.CodeInvalid, "missing cpf")
 	}
 
 	r.mu.RLock()
 	id, ok := r.byCpf[cpf]
 	if !ok || id == "" {
 		r.mu.RUnlock()
-		return nil, ErrUserNotFound
+		return nil, errx.New(errx.CodeNotFound, "user not found")
 	}
 	u, ok := r.byID[id]
 	r.mu.RUnlock()
 
 	if !ok || u == nil {
-		return nil, ErrUserNotFound
+		return nil, errx.New(errx.CodeNotFound, "user not found")
 	}
 	return cloneUser(u), nil
 }
@@ -125,20 +120,20 @@ func (r *Repo) GetByMail(ctx context.Context, mail string) (*entity.User, error)
 	_ = ctx
 
 	if mail == "" {
-		return nil, errors.New("missing email")
+		return nil, errx.New(errx.CodeInvalid, "missing email")
 	}
 
 	r.mu.RLock()
 	id, ok := r.byMail[mail]
 	if !ok || id == "" {
 		r.mu.RUnlock()
-		return nil, ErrUserNotFound
+		return nil, errx.New(errx.CodeNotFound, "user not found")
 	}
 	u, ok := r.byID[id]
 	r.mu.RUnlock()
 
 	if !ok || u == nil {
-		return nil, ErrUserNotFound
+		return nil, errx.New(errx.CodeNotFound, "user not found")
 	}
 	return cloneUser(u), nil
 }

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 	"net/http"
 	"strings"
 
@@ -13,13 +14,6 @@ import (
 type CreateStoreRequest struct {
 	Name string `json:"name"`
 	Cnpj string `json:"cnpj"`
-}
-
-type HttpResponse struct {
-	Status  string `json:"status"`
-	Error   string `json:"error,omitempty"`
-	Message string `json:"message"`
-	Data    any    `json:"data,omitempty"`
 }
 
 type StoreHandler struct {
@@ -35,17 +29,17 @@ func NewStoreHandler(repo portsRepository.StoreRepository, uuid ports.UUIDInterf
 func (sh *StoreHandler) Create(ctx *gin.Context) {
 	var req CreateStoreRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, HttpResponse{Status: "error", Error: err.Error(), Message: "invalid request"})
+		respondErr(ctx, err)
 		return
 	}
 
 	if strings.TrimSpace(req.Name) == "" {
-		ctx.JSON(http.StatusBadRequest, HttpResponse{Status: "error", Error: "invalid request", Message: "name are required"})
+		respondErr(ctx, errx.New(errx.CodeInvalid, "name are required"))
 		return
 	}
 
 	if strings.TrimSpace(req.Cnpj) == "" {
-		ctx.JSON(http.StatusBadRequest, HttpResponse{Status: "error", Error: "invalid request", Message: "cnpj are required"})
+		respondErr(ctx, errx.New(errx.CodeInvalid, "cnpj are required"))
 		return
 	}
 
@@ -53,26 +47,26 @@ func (sh *StoreHandler) Create(ctx *gin.Context) {
 	output, err := uc.Execute(usecase.CreateStoreInput{Name: req.Name, Cnpj: req.Cnpj})
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, HttpResponse{Status: "error", Error: err.Error(), Message: "error creating store"})
+		respondErr(ctx, err)
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, HttpResponse{Status: "success", Message: "store created", Data: output})
+	respondOK(ctx, http.StatusCreated, output)
 }
 
-func (h *StoreHandler) GetByID(ctx *gin.Context) {
+func (sh *StoreHandler) GetByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 
 	if id == "" {
-		ctx.JSON(http.StatusBadRequest, HttpResponse{Status: "error", Error: "invalid request", Message: "id are required"})
+		respondErr(ctx, errx.New(errx.CodeInvalid, "missing id"))
 		return
 	}
 
-	store, err := h.storeRepository.GetByID(ctx, id)
+	store, err := sh.storeRepository.GetByID(ctx, id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, HttpResponse{Status: "error", Error: err.Error(), Message: "error getting store"})
+		respondErr(ctx, err)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, HttpResponse{Status: "success", Message: "store found", Data: store})
+	respondOK(ctx, http.StatusOK, store)
 }
