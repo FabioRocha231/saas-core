@@ -5,7 +5,7 @@ content-type: application/json
   "name": "Nome Teste",
   "email": "teste@gmail.com",
   "password": "123456",
-  "store_id": "",
+  
   "cpf": "856.081.860-01",
   "phone": "11999999999",
   "status": "active",
