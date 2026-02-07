@@ -12,10 +12,11 @@ import (
 )
 
 type CreateUserUsecase struct {
-	userRepo  repository.UserRepository
-	storeRepo repository.StoreRepository
-	uuid      ports.UUIDInterface
-	context   context.Context
+	userRepo     repository.UserRepository
+	storeRepo    repository.StoreRepository
+	uuid         ports.UUIDInterface
+	passwordHash ports.PasswordHashInterface
+	context      context.Context
 }
 
 type CreateUserInput struct {
@@ -33,12 +34,19 @@ type CreateUserOutput struct {
 	ID string `json:"id"`
 }
 
-func NewCreateUserUsecase(userRepo repository.UserRepository, storeRepo repository.StoreRepository, ctx context.Context, uuid ports.UUIDInterface) *CreateUserUsecase {
+func NewCreateUserUsecase(
+	userRepo repository.UserRepository,
+	storeRepo repository.StoreRepository,
+	ctx context.Context,
+	uuid ports.UUIDInterface,
+	passwordHash ports.PasswordHashInterface,
+) *CreateUserUsecase {
 	return &CreateUserUsecase{
-		userRepo:  userRepo,
-		storeRepo: storeRepo,
-		uuid:      uuid,
-		context:   ctx,
+		userRepo:     userRepo,
+		storeRepo:    storeRepo,
+		uuid:         uuid,
+		passwordHash: passwordHash,
+		context:      ctx,
 	}
 }
 
@@ -53,7 +61,6 @@ func (uc *CreateUserUsecase) Execute(input CreateUserInput) (*CreateUserOutput, 
 		Name:      input.Name,
 		Email:     input.Email,
 		Cpf:       cpf.Digits(),
-		Password:  input.Password,
 		Phone:     input.Phone,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -82,6 +89,12 @@ func (uc *CreateUserUsecase) Execute(input CreateUserInput) (*CreateUserOutput, 
 		return nil, errx.New(errx.CodeInvalid, "invalid user status")
 	}
 	user.Status = statusValue
+
+	hash, err := uc.passwordHash.Hash(input.Password)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = hash
 
 	if err := uc.userRepo.Create(uc.context, user); err != nil {
 		return nil, err

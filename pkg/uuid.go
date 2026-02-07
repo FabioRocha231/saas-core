@@ -1,10 +1,13 @@
 package pkg
 
-import "github.com/google/uuid"
+import (
+	ports "github.com/FabioRocha231/saas-core/internal/port"
+	"github.com/google/uuid"
+)
 
 type UUID struct{}
 
-func NewUUID() *UUID {
+func NewUUID() ports.UUIDInterface {
 	return &UUID{}
 }
 

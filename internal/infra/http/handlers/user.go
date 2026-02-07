@@ -23,16 +23,23 @@ type CreateUserRequest struct {
 }
 
 type UserHandler struct {
-	userRepo  portsRepository.UserRepository
-	storeRepo portsRepository.StoreRepository
-	uuid      ports.UUIDInterface
+	userRepo     portsRepository.UserRepository
+	storeRepo    portsRepository.StoreRepository
+	uuid         ports.UUIDInterface
+	passwordHash ports.PasswordHashInterface
 }
 
-func NewUserHandler(userRepo portsRepository.UserRepository, storeRepo portsRepository.StoreRepository, uuid ports.UUIDInterface) *UserHandler {
+func NewUserHandler(
+	userRepo portsRepository.UserRepository,
+	storeRepo portsRepository.StoreRepository,
+	uuid ports.UUIDInterface,
+	passwordHash ports.PasswordHashInterface,
+) *UserHandler {
 	return &UserHandler{
-		userRepo:  userRepo,
-		storeRepo: storeRepo,
-		uuid:      uuid,
+		userRepo:     userRepo,
+		storeRepo:    storeRepo,
+		uuid:         uuid,
+		passwordHash: passwordHash,
 	}
 }
 
@@ -79,7 +86,7 @@ func (h *UserHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewCreateUserUsecase(h.userRepo, h.storeRepo, ctx, h.uuid)
+	uc := usecase.NewCreateUserUsecase(h.userRepo, h.storeRepo, ctx, h.uuid, h.passwordHash)
 	createUserInput := usecase.CreateUserInput{
 		Name:     req.Name,
 		Email:    req.Email,
