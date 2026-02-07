@@ -1,13 +1,13 @@
-package ports
+package repository
 
 import (
 	"context"
 
-	"github.com/FabioRocha231/saas-core/internal/domain/store"
+	"github.com/FabioRocha231/saas-core/internal/domain/entity"
 )
 
 type StoreRepository interface {
-	Create(ctx context.Context, s *store.Store) error
-	GetByID(ctx context.Context, id string) (*store.Store, error)
-	GetBySlug(ctx context.Context, slug string) (*store.Store, error)
+	Create(ctx context.Context, s *entity.Store) error
+	GetByID(ctx context.Context, id string) (*entity.Store, error)
+	GetBySlug(ctx context.Context, slug string) (*entity.Store, error)
 }
