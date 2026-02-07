@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/FabioRocha231/saas-core/internal/domain/store"
+	"github.com/FabioRocha231/saas-core/internal/domain/entity"
 	valueobject "github.com/FabioRocha231/saas-core/internal/domain/value_object"
 	ports "github.com/FabioRocha231/saas-core/internal/port"
 	repositoryPorts "github.com/FabioRocha231/saas-core/internal/port/repository"
@@ -34,7 +34,7 @@ func (uc *CreateStoreUsecase) Execute(input CreateStoreInput) (*CreateStoreOutpu
 		return nil, err
 	}
 
-	store := &store.Store{
+	store := &entity.Store{
 		Name:   input.Name,
 		Cnpj:   cnpj.Digits(),
 		ID:     uc.uuid.Generate(),

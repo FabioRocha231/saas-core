@@ -1,4 +1,4 @@
-package store
+package entity
 
 type Store struct {
 	ID     string

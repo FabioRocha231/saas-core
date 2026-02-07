@@ -5,23 +5,23 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/FabioRocha231/saas-core/internal/domain/store"
+	"github.com/FabioRocha231/saas-core/internal/domain/entity"
 )
 
 type Repo struct {
 	mu     sync.RWMutex
-	byID   map[string]*store.Store
+	byID   map[string]*entity.Store
 	bySlug map[string]string // slug -> id
 }
 
 func New() *Repo {
 	return &Repo{
-		byID:   make(map[string]*store.Store),
+		byID:   make(map[string]*entity.Store),
 		bySlug: make(map[string]string),
 	}
 }
 
-func (r *Repo) Create(ctx context.Context, s *store.Store) error {
+func (r *Repo) Create(ctx context.Context, s *entity.Store) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -40,7 +40,7 @@ func (r *Repo) Create(ctx context.Context, s *store.Store) error {
 	return nil
 }
 
-func (r *Repo) GetByID(ctx context.Context, id string) (*store.Store, error) {
+func (r *Repo) GetByID(ctx context.Context, id string) (*entity.Store, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -53,7 +53,7 @@ func (r *Repo) GetByID(ctx context.Context, id string) (*store.Store, error) {
 	return &cp, nil
 }
 
-func (r *Repo) GetBySlug(ctx context.Context, slug string) (*store.Store, error) {
+func (r *Repo) GetBySlug(ctx context.Context, slug string) (*entity.Store, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
