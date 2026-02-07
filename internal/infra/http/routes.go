@@ -17,4 +17,6 @@ func RegisterRoutes(engine *gin.Engine) {
 
 	engine.POST("/user", userHandler.Create)
 	engine.GET("/user/:id", userHandler.GetByID)
+	engine.GET("/user/email/:email", userHandler.GetByEmail)
+	engine.GET("/user/cpf/:cpf", userHandler.GetByCpf)
 }

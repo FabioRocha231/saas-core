@@ -2,24 +2,17 @@ package usecase
 
 import (
 	"context"
-	"github.com/FabioRocha231/saas-core/internal/domain/errx"
-	"time"
-
+	valueobject "github.com/FabioRocha231/saas-core/internal/domain/value_object"
 	ports "github.com/FabioRocha231/saas-core/internal/port"
 	"github.com/FabioRocha231/saas-core/internal/port/repository"
+	"time"
 )
 
-type GetUserByIdUsecase struct {
-	repo    repository.UserRepository
-	uuid    ports.UUIDInterface
-	context context.Context
+type GetUserByCpfInput struct {
+	Cpf string
 }
 
-type GetUserByIdInput struct {
-	ID string
-}
-
-type GetUserByIdOutput struct {
+type GetUserByCpfOutput struct {
 	ID              string     `json:"id"`
 	Name            string     `json:"name"`
 	Email           string     `json:"email"`
@@ -35,23 +28,28 @@ type GetUserByIdOutput struct {
 	LastLoginAt     *time.Time `json:"last_login_at"`
 }
 
-func NewGetUserByIdUsecase(repo repository.UserRepository, uuid ports.UUIDInterface, ctx context.Context) *GetUserByIdUsecase {
-	return &GetUserByIdUsecase{repo: repo, uuid: uuid, context: ctx}
+type GetUserByCpfUsecase struct {
+	repo repository.UserRepository
+	uuid ports.UUIDInterface
+	ctx  context.Context
 }
 
-func (u *GetUserByIdUsecase) Execute(input GetUserByIdInput) (*GetUserByIdOutput, error) {
-	isUuid := u.uuid.Validate(input.ID)
+func NewGetUserByCpfUsecase(repo repository.UserRepository, uuid ports.UUIDInterface, ctx context.Context) *GetUserByCpfUsecase {
+	return &GetUserByCpfUsecase{repo: repo, uuid: uuid, ctx: ctx}
+}
 
-	if !isUuid {
-		return nil, errx.New(errx.CodeInvalid, "invalid id")
+func (uc *GetUserByCpfUsecase) Execute(input GetUserByCpfInput) (*GetUserByCpfOutput, error) {
+	cpf := valueobject.NewCpf(input.Cpf)
+	if err := cpf.Validate(); err != nil {
+		return nil, err
 	}
 
-	user, err := u.repo.GetByID(u.context, input.ID)
+	user, err := uc.repo.GetByCpf(uc.ctx, cpf.Digits())
 	if err != nil {
 		return nil, err
 	}
 
-	return &GetUserByIdOutput{
+	return &GetUserByCpfOutput{
 		ID:              user.ID,
 		Name:            user.Name,
 		Email:           user.Email,

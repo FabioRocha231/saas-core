@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"context"
-	"errors"
+	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 	"time"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/entity"
@@ -38,7 +38,7 @@ func NewCreateUserUsecase(repo repository.UserRepository, ctx context.Context, u
 func (uc *CreateUserUsecase) Execute(input CreateUserInput) (*CreateUserOutput, error) {
 	cpf := valueobject.NewCpf(input.Cpf)
 	if err := cpf.Validate(); err != nil {
-		return nil, err
+		return nil, errx.New(errx.CodeInvalid, "invalid cpf")
 	}
 	user := &entity.User{
 		ID:        uc.uuid.Generate(),
@@ -53,13 +53,13 @@ func (uc *CreateUserUsecase) Execute(input CreateUserInput) (*CreateUserOutput, 
 
 	roleValue, okRole := entity.UserRoleMap[input.Role]
 	if !okRole || roleValue == "" {
-		return nil, errors.New("Invalid user role")
+		return nil, errx.New(errx.CodeInvalid, "invalid user role")
 	}
 	user.Role = roleValue
 
 	statusValue, okValue := entity.UserStatusMap[input.Status]
 	if !okValue || statusValue == "" {
-		return nil, errors.New("Invalid user status")
+		return nil, errx.New(errx.CodeInvalid, "invalid user status")
 	}
 	user.Status = statusValue
 

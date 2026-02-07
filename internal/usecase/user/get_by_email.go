@@ -2,24 +2,16 @@ package usecase
 
 import (
 	"context"
-	"github.com/FabioRocha231/saas-core/internal/domain/errx"
-	"time"
-
 	ports "github.com/FabioRocha231/saas-core/internal/port"
 	"github.com/FabioRocha231/saas-core/internal/port/repository"
+	"time"
 )
 
-type GetUserByIdUsecase struct {
-	repo    repository.UserRepository
-	uuid    ports.UUIDInterface
-	context context.Context
+type GetUserByEmailInput struct {
+	Email string
 }
 
-type GetUserByIdInput struct {
-	ID string
-}
-
-type GetUserByIdOutput struct {
+type GetUserByEmailOutput struct {
 	ID              string     `json:"id"`
 	Name            string     `json:"name"`
 	Email           string     `json:"email"`
@@ -35,23 +27,24 @@ type GetUserByIdOutput struct {
 	LastLoginAt     *time.Time `json:"last_login_at"`
 }
 
-func NewGetUserByIdUsecase(repo repository.UserRepository, uuid ports.UUIDInterface, ctx context.Context) *GetUserByIdUsecase {
-	return &GetUserByIdUsecase{repo: repo, uuid: uuid, context: ctx}
+type GetUserByEmailUsecase struct {
+	repo    repository.UserRepository
+	uuid    ports.UUIDInterface
+	context context.Context
 }
 
-func (u *GetUserByIdUsecase) Execute(input GetUserByIdInput) (*GetUserByIdOutput, error) {
-	isUuid := u.uuid.Validate(input.ID)
+func NewGetUserByEmailUsecase(repo repository.UserRepository, uuid ports.UUIDInterface, ctx context.Context) *GetUserByEmailUsecase {
+	return &GetUserByEmailUsecase{repo: repo, uuid: uuid, context: ctx}
+}
 
-	if !isUuid {
-		return nil, errx.New(errx.CodeInvalid, "invalid id")
-	}
+func (u *GetUserByEmailUsecase) Execute(input GetUserByEmailInput) (*GetUserByEmailOutput, error) {
+	user, err := u.repo.GetByMail(u.context, input.Email)
 
-	user, err := u.repo.GetByID(u.context, input.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	return &GetUserByIdOutput{
+	return &GetUserByEmailOutput{
 		ID:              user.ID,
 		Name:            user.Name,
 		Email:           user.Email,
