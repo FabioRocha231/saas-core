@@ -12,9 +12,10 @@ import (
 )
 
 type CreateUserUsecase struct {
-	repo    repository.UserRepository
-	uuid    ports.UUIDInterface
-	context context.Context
+	userRepo  repository.UserRepository
+	storeRepo repository.StoreRepository
+	uuid      ports.UUIDInterface
+	context   context.Context
 }
 
 type CreateUserInput struct {
@@ -22,6 +23,7 @@ type CreateUserInput struct {
 	Email    string
 	Cpf      string
 	Password string
+	StoreId  *string
 	Phone    string
 	Status   string
 	Role     string
@@ -31,8 +33,13 @@ type CreateUserOutput struct {
 	ID string `json:"id"`
 }
 
-func NewCreateUserUsecase(repo repository.UserRepository, ctx context.Context, uuid ports.UUIDInterface) *CreateUserUsecase {
-	return &CreateUserUsecase{repo: repo, uuid: uuid, context: ctx}
+func NewCreateUserUsecase(userRepo repository.UserRepository, storeRepo repository.StoreRepository, ctx context.Context, uuid ports.UUIDInterface) *CreateUserUsecase {
+	return &CreateUserUsecase{
+		userRepo:  userRepo,
+		storeRepo: storeRepo,
+		uuid:      uuid,
+		context:   ctx,
+	}
 }
 
 func (uc *CreateUserUsecase) Execute(input CreateUserInput) (*CreateUserOutput, error) {
@@ -40,6 +47,7 @@ func (uc *CreateUserUsecase) Execute(input CreateUserInput) (*CreateUserOutput, 
 	if err := cpf.Validate(); err != nil {
 		return nil, errx.New(errx.CodeInvalid, "invalid cpf")
 	}
+
 	user := &entity.User{
 		ID:        uc.uuid.Generate(),
 		Name:      input.Name,
@@ -49,6 +57,18 @@ func (uc *CreateUserUsecase) Execute(input CreateUserInput) (*CreateUserOutput, 
 		Phone:     input.Phone,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
+	}
+
+	if input.StoreId != nil {
+		isValidUuid := uc.uuid.Validate(*input.StoreId)
+		if !isValidUuid {
+			return nil, errx.New(errx.CodeInvalid, "invalid store id")
+		}
+		store, err := uc.storeRepo.GetByID(uc.context, *input.StoreId)
+		if err != nil {
+			return nil, err
+		}
+		user.StoreId = &store.ID
 	}
 
 	roleValue, okRole := entity.UserRoleMap[input.Role]
@@ -63,7 +83,7 @@ func (uc *CreateUserUsecase) Execute(input CreateUserInput) (*CreateUserOutput, 
 	}
 	user.Status = statusValue
 
-	if err := uc.repo.Create(uc.context, user); err != nil {
+	if err := uc.userRepo.Create(uc.context, user); err != nil {
 		return nil, err
 	}
 

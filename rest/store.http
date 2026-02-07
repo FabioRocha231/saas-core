@@ -7,4 +7,4 @@ content-type: application/json
 }
 
 ###
-GET http://localhost:8080/store/8cc01a23-9253-4bf7-acb0-f87556c39ea2 HTTP/1.1
+GET http://localhost:8080/store/7fcf5d42-bd42-4e2a-be6e-7b2a3e4bbf7e HTTP/1.1

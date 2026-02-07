@@ -12,22 +12,28 @@ import (
 )
 
 type CreateUserRequest struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Cpf      string `json:"cpf"`
-	Phone    string `json:"phone"`
-	Status   string `json:"status"`
-	Role     string `json:"role"`
+	Name     string  `json:"name"`
+	Email    string  `json:"email"`
+	Password string  `json:"password"`
+	Cpf      string  `json:"cpf"`
+	Phone    string  `json:"phone"`
+	StoreId  *string `json:"store_id"`
+	Status   string  `json:"status"`
+	Role     string  `json:"role"`
 }
 
 type UserHandler struct {
-	userRepository portsRepository.UserRepository
-	uuid           ports.UUIDInterface
+	userRepo  portsRepository.UserRepository
+	storeRepo portsRepository.StoreRepository
+	uuid      ports.UUIDInterface
 }
 
-func NewUserHandler(repo portsRepository.UserRepository, uuid ports.UUIDInterface) *UserHandler {
-	return &UserHandler{userRepository: repo, uuid: uuid}
+func NewUserHandler(userRepo portsRepository.UserRepository, storeRepo portsRepository.StoreRepository, uuid ports.UUIDInterface) *UserHandler {
+	return &UserHandler{
+		userRepo:  userRepo,
+		storeRepo: storeRepo,
+		uuid:      uuid,
+	}
 }
 
 func (h *UserHandler) Create(ctx *gin.Context) {
@@ -73,8 +79,8 @@ func (h *UserHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewCreateUserUsecase(h.userRepository, ctx, h.uuid)
-	usecaseOutput, err := uc.Execute(usecase.CreateUserInput{
+	uc := usecase.NewCreateUserUsecase(h.userRepo, h.storeRepo, ctx, h.uuid)
+	createUserInput := usecase.CreateUserInput{
 		Name:     req.Name,
 		Email:    req.Email,
 		Cpf:      req.Cpf,
@@ -82,7 +88,13 @@ func (h *UserHandler) Create(ctx *gin.Context) {
 		Phone:    req.Phone,
 		Status:   req.Status,
 		Role:     req.Role,
-	})
+	}
+
+	if req.StoreId != nil {
+		createUserInput.StoreId = req.StoreId
+	}
+
+	usecaseOutput, err := uc.Execute(createUserInput)
 	if err != nil {
 		respondErr(ctx, err)
 		return
@@ -98,7 +110,7 @@ func (h *UserHandler) GetByID(ctx *gin.Context) {
 		respondErr(ctx, errx.New(errx.CodeInvalid, "missing id"))
 		return
 	}
-	uc := usecase.NewGetUserByIdUsecase(h.userRepository, h.uuid, ctx)
+	uc := usecase.NewGetUserByIdUsecase(h.userRepo, h.uuid, ctx)
 
 	output, err := uc.Execute(usecase.GetUserByIdInput{ID: id})
 	if err != nil {
@@ -117,7 +129,7 @@ func (h *UserHandler) GetByEmail(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewGetUserByEmailUsecase(h.userRepository, h.uuid, ctx)
+	uc := usecase.NewGetUserByEmailUsecase(h.userRepo, h.uuid, ctx)
 
 	output, err := uc.Execute(usecase.GetUserByEmailInput{Email: email})
 	if err != nil {
@@ -136,7 +148,7 @@ func (h *UserHandler) GetByCpf(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewGetUserByCpfUsecase(h.userRepository, h.uuid, ctx)
+	uc := usecase.NewGetUserByCpfUsecase(h.userRepo, h.uuid, ctx)
 
 	output, err := uc.Execute(usecase.GetUserByCpfInput{Cpf: cpf})
 

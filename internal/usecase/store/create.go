@@ -39,7 +39,7 @@ func (uc *CreateStoreUsecase) Execute(input CreateStoreInput) (*CreateStoreOutpu
 		Name:   input.Name,
 		Cnpj:   cnpj.Digits(),
 		ID:     uc.uuid.Generate(),
-		Slug:   "12",
+		Slug:   input.Name,
 		IsOpen: true,
 	}
 

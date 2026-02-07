@@ -51,6 +51,8 @@ type User struct {
 	Status UserStatus
 	Role   UserRole
 
+	StoreId *string
+
 	Password string
 
 	EmailVerifiedAt *time.Time

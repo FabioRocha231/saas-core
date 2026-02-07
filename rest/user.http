@@ -5,6 +5,7 @@ content-type: application/json
   "name": "Nome Teste",
   "email": "teste@gmail.com",
   "password": "123456",
+  "store_id": "7fcf5d42-bd42-4e2a-be6e-7b2a3e4bbf7e",
   "cpf": "856.081.860-01",
   "phone": "11999999999",
   "status": "active",
@@ -12,7 +13,7 @@ content-type: application/json
 }
 
 ###
-GET http://localhost:8080/user/475c4023-2fc4-4812-bfb7-9cc3871c2b46 HTTP/1.1
+GET http://localhost:8080/user/730edd37-5de8-4583-9e08-b4c91065d999 HTTP/1.1
 
 ###
 GET http://localhost:8080/user/email/teste@gmail.com HTTP/1.1
