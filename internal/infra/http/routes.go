@@ -10,8 +10,12 @@ import (
 
 func RegisterRoutes(engine *gin.Engine) {
 	uuid := pkg.NewUUID()
-	storeHandler := handlers.NewStoreHandler(memorystore.New(), uuid)
-	userHandler := handlers.NewUserHandler(memoryuser.New(), uuid)
+	passwordHash := pkg.NewPasswordHash()
+	storeRepo := memorystore.New()
+
+	storeHandler := handlers.NewStoreHandler(storeRepo, uuid)
+	userHandler := handlers.NewUserHandler(memoryuser.New(), storeRepo, uuid, passwordHash)
+
 	engine.POST("/store", storeHandler.Create)
 	engine.GET("/store/:id", storeHandler.GetByID)
 
