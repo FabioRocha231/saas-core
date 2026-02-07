@@ -19,3 +19,6 @@ GET http://localhost:8080/user/email/teste@gmail.com HTTP/1.1
 
 ###
 GET http://localhost:8080/user/cpf/856.081.860-01 HTTP/1.1
+
+
+
