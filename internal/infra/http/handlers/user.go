@@ -1,9 +1,10 @@
 package handlers
 
 import (
-	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 	"net/http"
 	"strings"
+
+	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 
 	ports "github.com/FabioRocha231/saas-core/internal/port"
 	portsRepository "github.com/FabioRocha231/saas-core/internal/port/repository"
@@ -47,42 +48,42 @@ func (h *UserHandler) Create(ctx *gin.Context) {
 	var req CreateUserRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		respondErr(ctx, errx.New(errx.CodeInternal, err.Error()))
+		RespondErr(ctx, errx.New(errx.CodeInternal, err.Error()))
 		return
 	}
 
 	if strings.TrimSpace(req.Name) == "" {
-		respondErr(ctx, errx.New(errx.CodeInvalid, "name are required"))
+		RespondErr(ctx, errx.New(errx.CodeInvalid, "name are required"))
 		return
 	}
 
 	if strings.TrimSpace(req.Email) == "" {
-		respondErr(ctx, errx.New(errx.CodeInvalid, "email are required"))
+		RespondErr(ctx, errx.New(errx.CodeInvalid, "email are required"))
 		return
 	}
 
 	if strings.TrimSpace(req.Password) == "" {
-		respondErr(ctx, errx.New(errx.CodeInvalid, "password are required"))
+		RespondErr(ctx, errx.New(errx.CodeInvalid, "password are required"))
 		return
 	}
 
 	if strings.TrimSpace(req.Cpf) == "" {
-		respondErr(ctx, errx.New(errx.CodeInvalid, "cpf are required"))
+		RespondErr(ctx, errx.New(errx.CodeInvalid, "cpf are required"))
 		return
 	}
 
 	if strings.TrimSpace(req.Phone) == "" {
-		respondErr(ctx, errx.New(errx.CodeInvalid, "phone are required"))
+		RespondErr(ctx, errx.New(errx.CodeInvalid, "phone are required"))
 		return
 	}
 
 	if strings.TrimSpace(req.Status) == "" {
-		respondErr(ctx, errx.New(errx.CodeInvalid, "status are required"))
+		RespondErr(ctx, errx.New(errx.CodeInvalid, "status are required"))
 		return
 	}
 
 	if strings.TrimSpace(req.Role) == "" {
-		respondErr(ctx, errx.New(errx.CodeInvalid, "role are required"))
+		RespondErr(ctx, errx.New(errx.CodeInvalid, "role are required"))
 		return
 	}
 
@@ -103,36 +104,36 @@ func (h *UserHandler) Create(ctx *gin.Context) {
 
 	usecaseOutput, err := uc.Execute(createUserInput)
 	if err != nil {
-		respondErr(ctx, err)
+		RespondErr(ctx, err)
 		return
 	}
 
-	respondOK(ctx, http.StatusCreated, usecaseOutput)
+	RespondOK(ctx, http.StatusCreated, usecaseOutput)
 }
 
 func (h *UserHandler) GetByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 
 	if id == "" {
-		respondErr(ctx, errx.New(errx.CodeInvalid, "missing id"))
+		RespondErr(ctx, errx.New(errx.CodeInvalid, "missing id"))
 		return
 	}
 	uc := usecase.NewGetUserByIdUsecase(h.userRepo, h.uuid, ctx)
 
 	output, err := uc.Execute(usecase.GetUserByIdInput{ID: id})
 	if err != nil {
-		respondErr(ctx, err)
+		RespondErr(ctx, err)
 		return
 	}
 
-	respondOK(ctx, http.StatusOK, output)
+	RespondOK(ctx, http.StatusOK, output)
 }
 
 func (h *UserHandler) GetByEmail(ctx *gin.Context) {
 	email := ctx.Param("email")
 
 	if email == "" {
-		respondErr(ctx, errx.New(errx.CodeInvalid, "missing email"))
+		RespondErr(ctx, errx.New(errx.CodeInvalid, "missing email"))
 		return
 	}
 
@@ -140,18 +141,18 @@ func (h *UserHandler) GetByEmail(ctx *gin.Context) {
 
 	output, err := uc.Execute(usecase.GetUserByEmailInput{Email: email})
 	if err != nil {
-		respondErr(ctx, err)
+		RespondErr(ctx, err)
 		return
 	}
 
-	respondOK(ctx, http.StatusOK, output)
+	RespondOK(ctx, http.StatusOK, output)
 }
 
 func (h *UserHandler) GetByCpf(ctx *gin.Context) {
 	cpf := ctx.Param("cpf")
 
 	if cpf == "" {
-		respondErr(ctx, errx.New(errx.CodeInvalid, "missing cpf"))
+		RespondErr(ctx, errx.New(errx.CodeInvalid, "missing cpf"))
 		return
 	}
 
@@ -160,9 +161,9 @@ func (h *UserHandler) GetByCpf(ctx *gin.Context) {
 	output, err := uc.Execute(usecase.GetUserByCpfInput{Cpf: cpf})
 
 	if err != nil {
-		respondErr(ctx, err)
+		RespondErr(ctx, err)
 		return
 	}
 
-	respondOK(ctx, http.StatusOK, output)
+	RespondOK(ctx, http.StatusOK, output)
 }

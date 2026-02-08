@@ -1,9 +1,10 @@
 package handlers
 
 import (
-	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 	"net/http"
 	"strings"
+
+	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 
 	ports "github.com/FabioRocha231/saas-core/internal/port"
 	portsRepository "github.com/FabioRocha231/saas-core/internal/port/repository"
@@ -29,17 +30,17 @@ func NewStoreHandler(repo portsRepository.StoreRepository, uuid ports.UUIDInterf
 func (sh *StoreHandler) Create(ctx *gin.Context) {
 	var req CreateStoreRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		respondErr(ctx, err)
+		RespondErr(ctx, err)
 		return
 	}
 
 	if strings.TrimSpace(req.Name) == "" {
-		respondErr(ctx, errx.New(errx.CodeInvalid, "name are required"))
+		RespondErr(ctx, errx.New(errx.CodeInvalid, "name are required"))
 		return
 	}
 
 	if strings.TrimSpace(req.Cnpj) == "" {
-		respondErr(ctx, errx.New(errx.CodeInvalid, "cnpj are required"))
+		RespondErr(ctx, errx.New(errx.CodeInvalid, "cnpj are required"))
 		return
 	}
 
@@ -47,26 +48,26 @@ func (sh *StoreHandler) Create(ctx *gin.Context) {
 	output, err := uc.Execute(usecase.CreateStoreInput{Name: req.Name, Cnpj: req.Cnpj})
 
 	if err != nil {
-		respondErr(ctx, err)
+		RespondErr(ctx, err)
 		return
 	}
 
-	respondOK(ctx, http.StatusCreated, output)
+	RespondOK(ctx, http.StatusCreated, output)
 }
 
 func (sh *StoreHandler) GetByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 
 	if id == "" {
-		respondErr(ctx, errx.New(errx.CodeInvalid, "missing id"))
+		RespondErr(ctx, errx.New(errx.CodeInvalid, "missing id"))
 		return
 	}
 
 	store, err := sh.storeRepository.GetByID(ctx, id)
 	if err != nil {
-		respondErr(ctx, err)
+		RespondErr(ctx, err)
 		return
 	}
 
-	respondOK(ctx, http.StatusOK, store)
+	RespondOK(ctx, http.StatusOK, store)
 }

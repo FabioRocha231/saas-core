@@ -1,13 +1,14 @@
 package handlers
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 	ports "github.com/FabioRocha231/saas-core/internal/port"
 	"github.com/FabioRocha231/saas-core/internal/port/repository"
 	usecase "github.com/FabioRocha231/saas-core/internal/usecase/auth"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strings"
 )
 
 type LoginRequest struct {
@@ -33,17 +34,17 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 	var req LoginRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		respondErr(ctx, errx.New(errx.CodeInternal, err.Error()))
+		RespondErr(ctx, errx.New(errx.CodeInternal, err.Error()))
 		return
 	}
 
 	if strings.TrimSpace(req.Email) == "" {
-		respondErr(ctx, errx.New(errx.CodeInvalid, "email are required"))
+		RespondErr(ctx, errx.New(errx.CodeInvalid, "email are required"))
 		return
 	}
 
 	if strings.TrimSpace(req.Password) == "" {
-		respondErr(ctx, errx.New(errx.CodeInvalid, "password are required"))
+		RespondErr(ctx, errx.New(errx.CodeInvalid, "password are required"))
 		return
 	}
 
@@ -51,9 +52,9 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 	output, err := uc.Execute(usecase.LoginInput{Email: req.Email, Password: req.Password})
 
 	if err != nil {
-		respondErr(ctx, err)
+		RespondErr(ctx, err)
 		return
 	}
 
-	respondOK(ctx, http.StatusOK, output)
+	RespondOK(ctx, http.StatusOK, output)
 }
