@@ -2,9 +2,10 @@ package memoryuser
 
 import (
 	"context"
-	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 	"sync"
 	"time"
+
+	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/entity"
 )

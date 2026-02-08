@@ -2,22 +2,25 @@ package pkg
 
 import (
 	"errors"
+	"time"
+
 	ports "github.com/FabioRocha231/saas-core/internal/port"
 	"github.com/golang-jwt/jwt/v5"
-	"time"
 )
 
 type Service struct {
 	secret []byte
 	ttl    time.Duration
 	issuer string
+	uuid   ports.UUIDInterface
 }
 
-func NewJwtService(secret string, ttl time.Duration, issuer string) ports.JwtInterface {
+func NewJwtService(secret string, ttl time.Duration, issuer string, uuid ports.UUIDInterface) ports.JwtInterface {
 	return &Service{
 		secret: []byte(secret),
 		ttl:    ttl,
 		issuer: issuer,
+		uuid:   uuid,
 	}
 }
 
@@ -27,6 +30,7 @@ func (s *Service) Sign(userID string, role string) (string, error) {
 		UserID: userID,
 		Role:   role,
 		RegisteredClaims: jwt.RegisteredClaims{
+			ID:        s.uuid.Generate(),
 			Issuer:    s.issuer,
 			IssuedAt:  jwt.NewNumericDate(now),
 			ExpiresAt: jwt.NewNumericDate(now.Add(s.ttl)),
@@ -52,4 +56,20 @@ func (s *Service) Parse(tokenStr string) (*ports.Claims, error) {
 		return nil, errors.New("invalid token")
 	}
 	return claims, nil
+}
+
+func (s *Service) GetJTI(tokenStr string) string {
+	claims, err := s.Parse(tokenStr)
+	if err != nil {
+		return ""
+	}
+	return claims.ID
+}
+
+func (s *Service) GetExpiresAt(tokenStr string) time.Time {
+	claims, err := s.Parse(tokenStr)
+	if err != nil {
+		return time.Time{}
+	}
+	return claims.ExpiresAt.Time
 }

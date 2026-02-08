@@ -8,6 +8,5 @@ type Session struct {
 	Role      string
 	ExpiresAt time.Time
 
-	RevokedAt *time.Time
 	CreatedAt time.Time
 }

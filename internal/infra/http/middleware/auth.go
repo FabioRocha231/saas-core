@@ -2,19 +2,22 @@ package middleware
 
 import (
 	"strings"
+	"time"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 	"github.com/FabioRocha231/saas-core/internal/infra/http/handlers"
 	ports "github.com/FabioRocha231/saas-core/internal/port"
+	"github.com/FabioRocha231/saas-core/internal/port/repository"
 	"github.com/gin-gonic/gin"
 )
 
 type AuthMiddleware struct {
-	jwtService ports.JwtInterface
+	jwtService  ports.JwtInterface
+	sessionRepo repository.SessionRepository
 }
 
-func NewAuthMiddleware(jwtService ports.JwtInterface) *AuthMiddleware {
-	return &AuthMiddleware{jwtService: jwtService}
+func NewAuthMiddleware(jwtService ports.JwtInterface, sessionRepo repository.SessionRepository) *AuthMiddleware {
+	return &AuthMiddleware{jwtService: jwtService, sessionRepo: sessionRepo}
 }
 
 const (
@@ -40,6 +43,20 @@ func (m *AuthMiddleware) Middleware(c *gin.Context) {
 	claims, err := m.jwtService.Parse(parts[1])
 	if err != nil {
 		handlers.RespondErr(c, errx.New(errx.CodeUnauthorized, "invalid token"))
+		c.Abort()
+		return
+	}
+
+	session, err := m.sessionRepo.GetByID(c.Request.Context(), claims.ID)
+	if err != nil || session == nil {
+		handlers.RespondErr(c, errx.New(errx.CodeUnauthorized, "invalid session"))
+		c.Abort()
+		return
+	}
+
+	now := time.Now()
+	if !session.ExpiresAt.After(now) {
+		handlers.RespondErr(c, errx.New(errx.CodeUnauthorized, "session expired"))
 		c.Abort()
 		return
 	}

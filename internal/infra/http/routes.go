@@ -4,6 +4,7 @@ import (
 	"os"
 	"time"
 
+	memorysession "github.com/FabioRocha231/saas-core/internal/infra/db/repository/session"
 	memorystore "github.com/FabioRocha231/saas-core/internal/infra/db/repository/store"
 	memoryuser "github.com/FabioRocha231/saas-core/internal/infra/db/repository/user"
 	"github.com/FabioRocha231/saas-core/internal/infra/http/handlers"
@@ -17,13 +18,14 @@ func RegisterRoutes(engine *gin.Engine) {
 	passwordHash := pkg.NewPasswordHash()
 	storeRepo := memorystore.New()
 	userRepo := memoryuser.New()
-	jwtService := pkg.NewJwtService(os.Getenv("JWT_SECRET"), 24*time.Hour, "saas-core")
+	sessionRepo := memorysession.New()
+	jwtService := pkg.NewJwtService(os.Getenv("JWT_SECRET"), 24*time.Hour, "saas-core", uuid)
 
 	storeHandler := handlers.NewStoreHandler(storeRepo, uuid)
 	userHandler := handlers.NewUserHandler(userRepo, storeRepo, uuid, passwordHash)
-	authHandler := handlers.NewAuthHandler(passwordHash, jwtService, userRepo)
+	authHandler := handlers.NewAuthHandler(passwordHash, jwtService, userRepo, sessionRepo)
 
-	authMiddleware := middleware.NewAuthMiddleware(jwtService)
+	authMiddleware := middleware.NewAuthMiddleware(jwtService, sessionRepo)
 
 	engine.POST("/store", storeHandler.Create)
 

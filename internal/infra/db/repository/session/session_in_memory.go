@@ -20,7 +20,7 @@ func New() *Repo {
 	}
 }
 
-func (r *Repo) Save(ctx context.Context, s *entity.Session) error {
+func (r *Repo) Create(ctx context.Context, s *entity.Session) error {
 	_ = ctx
 
 	if s == nil {
@@ -94,14 +94,5 @@ func cloneSession(s *entity.Session) *entity.Session {
 		return nil
 	}
 	cp := *s
-	cp.RevokedAt = cloneTimePtr(s.RevokedAt)
 	return &cp
-}
-
-func cloneTimePtr(t *time.Time) *time.Time {
-	if t == nil {
-		return nil
-	}
-	v := *t
-	return &v
 }
