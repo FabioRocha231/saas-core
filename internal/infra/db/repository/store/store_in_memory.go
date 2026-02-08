@@ -2,8 +2,10 @@ package memorystore
 
 import (
 	"context"
-	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 	"sync"
+
+	"github.com/FabioRocha231/saas-core/internal/domain/errx"
+	"github.com/FabioRocha231/saas-core/internal/port/repository"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/entity"
 )
@@ -14,7 +16,7 @@ type Repo struct {
 	bySlug map[string]string // slug -> id
 }
 
-func New() *Repo {
+func New() repository.StoreRepository {
 	return &Repo{
 		byID:   make(map[string]*entity.Store),
 		bySlug: make(map[string]string),
