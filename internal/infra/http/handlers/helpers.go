@@ -6,11 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func respondOK(c *gin.Context, status int, data any) {
+func RespondOK(c *gin.Context, status int, data any) {
 	c.JSON(status, response.Ok(data))
 }
 
-func respondErr(c *gin.Context, err error) {
+func RespondErr(c *gin.Context, err error) {
 	status, body := apperr.ToHTTP(err)
 	c.JSON(status, body)
 }

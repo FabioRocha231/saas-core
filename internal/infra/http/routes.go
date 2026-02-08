@@ -1,9 +1,14 @@
 package http
 
 import (
+	"os"
+	"time"
+
+	memorysession "github.com/FabioRocha231/saas-core/internal/infra/db/repository/session"
 	memorystore "github.com/FabioRocha231/saas-core/internal/infra/db/repository/store"
 	memoryuser "github.com/FabioRocha231/saas-core/internal/infra/db/repository/user"
 	"github.com/FabioRocha231/saas-core/internal/infra/http/handlers"
+	"github.com/FabioRocha231/saas-core/internal/infra/http/middleware"
 	"github.com/FabioRocha231/saas-core/pkg"
 	"github.com/gin-gonic/gin"
 )
@@ -12,15 +17,28 @@ func RegisterRoutes(engine *gin.Engine) {
 	uuid := pkg.NewUUID()
 	passwordHash := pkg.NewPasswordHash()
 	storeRepo := memorystore.New()
+	userRepo := memoryuser.New()
+	sessionRepo := memorysession.New()
+	jwtService := pkg.NewJwtService(os.Getenv("JWT_SECRET"), 24*time.Hour, "saas-core", uuid)
 
 	storeHandler := handlers.NewStoreHandler(storeRepo, uuid)
-	userHandler := handlers.NewUserHandler(memoryuser.New(), storeRepo, uuid, passwordHash)
+	userHandler := handlers.NewUserHandler(userRepo, storeRepo, uuid, passwordHash)
+	authHandler := handlers.NewAuthHandler(passwordHash, jwtService, userRepo, sessionRepo)
+
+	authMiddleware := middleware.NewAuthMiddleware(jwtService, sessionRepo)
 
 	engine.POST("/store", storeHandler.Create)
-	engine.GET("/store/:id", storeHandler.GetByID)
 
 	engine.POST("/user", userHandler.Create)
-	engine.GET("/user/:id", userHandler.GetByID)
-	engine.GET("/user/email/:email", userHandler.GetByEmail)
-	engine.GET("/user/cpf/:cpf", userHandler.GetByCpf)
+
+	engine.POST("/login", authHandler.Login)
+
+	protected := engine.Group("/")
+	protected.Use(authMiddleware.Middleware)
+
+	protected.GET("/store/:id", storeHandler.GetByID)
+
+	protected.GET("/user/:id", userHandler.GetByID)
+	protected.GET("/user/email/:email", userHandler.GetByEmail)
+	protected.GET("/user/cpf/:cpf", userHandler.GetByCpf)
 }
