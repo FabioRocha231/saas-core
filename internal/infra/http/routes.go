@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"os"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	memoryuser "github.com/FabioRocha231/saas-core/internal/infra/db/repository/user"
 	"github.com/FabioRocha231/saas-core/internal/infra/http/handlers"
 	"github.com/FabioRocha231/saas-core/internal/infra/http/middleware"
+	"github.com/FabioRocha231/saas-core/internal/infra/seed"
 	"github.com/FabioRocha231/saas-core/pkg"
 	"github.com/gin-gonic/gin"
 )
@@ -22,6 +24,8 @@ func RegisterRoutes(engine *gin.Engine) {
 	sessionRepo := memorysession.New()
 	storeMenuRepo := memorystoremenu.New()
 	jwtService := pkg.NewJwtService(os.Getenv("JWT_SECRET"), 24*time.Hour, "saas-core", uuid)
+
+	seed.Seed(context.Background(), userRepo, passwordHash, uuid)
 
 	storeHandler := handlers.NewStoreHandler(storeRepo, uuid)
 	userHandler := handlers.NewUserHandler(userRepo, storeRepo, uuid, passwordHash)
