@@ -10,20 +10,19 @@ content-type: application/json
 @token = {{login.response.body.data.token}}
 
 ###
-POST http://localhost:8080/store/8e7606ca-4ef1-4432-9c57-a6c0ed32d4dc/menu HTTP/1.1
+POST http://localhost:8080/menu/906809e1-25ae-40ce-91d5-af90313868b9/category HTTP/1.1
 content-type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "name": "Menu Principal",
-  "isActive": true
+  "name": "Bebidas",
+  "is_active": true
 }
 
 ###
-GET http://localhost:8080/store/8e7606ca-4ef1-4432-9c57-a6c0ed32d4dc/menus HTTP/1.1
+GET http://localhost:8080/menu/categories/906809e1-25ae-40ce-91d5-af90313868b9 HTTP/1.1
 Authorization: Bearer {{token}}
 
 ###
-GET http://localhost:8080/menu/bd616188-7278-4b9d-b9d6-d0428d4f5939 HTTP/1.1
+GET http://localhost:8080/menu/category/f6dfc2a0-a464-42ae-964c-5eeadcf68f2e HTTP/1.1
 Authorization: Bearer {{token}}
-
