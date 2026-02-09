@@ -1,6 +1,7 @@
 # @name login
 POST http://localhost:8080/login HTTP/1.1
 content-type: application/json
+
 {
   "email": "teste@gmail.com",
   "password": "123456"
@@ -9,7 +10,7 @@ content-type: application/json
 @token = {{login.response.body.data.token}}
 
 ###
-POST http://localhost:8080/store/b7daf52e-e9b3-4ef4-9553-d6bbb38eb3ec/menu HTTP/1.1
+POST http://localhost:8080/store/8e7606ca-4ef1-4432-9c57-a6c0ed32d4dc/menu HTTP/1.1
 content-type: application/json
 Authorization: Bearer {{token}}
 
@@ -19,7 +20,7 @@ Authorization: Bearer {{token}}
 }
 
 ###
-GET http://localhost:8080/store/b7daf52e-e9b3-4ef4-9553-d6bbb38eb3ec/menus HTTP/1.1
+GET http://localhost:8080/store/8e7606ca-4ef1-4432-9c57-a6c0ed32d4dc/menus HTTP/1.1
 Authorization: Bearer {{token}}
 
 ###

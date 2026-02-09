@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	memorymenucategory "github.com/FabioRocha231/saas-core/internal/infra/db/repository/menu_category"
 	memorysession "github.com/FabioRocha231/saas-core/internal/infra/db/repository/session"
 	memorystore "github.com/FabioRocha231/saas-core/internal/infra/db/repository/store"
 	memorystoremenu "github.com/FabioRocha231/saas-core/internal/infra/db/repository/store_menu"
@@ -23,6 +24,7 @@ func RegisterRoutes(engine *gin.Engine) {
 	userRepo := memoryuser.New()
 	sessionRepo := memorysession.New()
 	storeMenuRepo := memorystoremenu.New()
+	menuCategoryRepo := memorymenucategory.New()
 	jwtService := pkg.NewJwtService(os.Getenv("JWT_SECRET"), 24*time.Hour, "saas-core", uuid)
 
 	seed.Seed(context.Background(), userRepo, passwordHash, uuid)
@@ -31,6 +33,7 @@ func RegisterRoutes(engine *gin.Engine) {
 	userHandler := handlers.NewUserHandler(userRepo, storeRepo, uuid, passwordHash)
 	authHandler := handlers.NewAuthHandler(passwordHash, jwtService, userRepo, sessionRepo, storeRepo)
 	storeMenuHandler := handlers.NewStoreMenuHandler(storeRepo, storeMenuRepo, uuid)
+	menuCategoryHandler := handlers.NewMenuCategoryHandler(menuCategoryRepo, storeMenuRepo, uuid)
 
 	authMiddleware := middleware.NewAuthMiddleware(jwtService, sessionRepo)
 
@@ -54,4 +57,9 @@ func RegisterRoutes(engine *gin.Engine) {
 
 	// Menu Store routes
 	protected.GET("/menu/:id", storeMenuHandler.GetByID)
+
+	// Menu category routes
+	protected.POST("/menu/:menuId/category", menuCategoryHandler.Create)
+	protected.GET("/menu/categories/:menuId", menuCategoryHandler.ListByMenuID)
+	protected.GET("/menu/category/:id", menuCategoryHandler.GetByID)
 }
