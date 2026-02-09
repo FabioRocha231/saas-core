@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/errx"
+	"github.com/FabioRocha231/saas-core/internal/port/repository"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/entity"
 )
@@ -17,7 +18,7 @@ type Repo struct {
 	byMail map[string]string // email -> id
 }
 
-func New() *Repo {
+func New() repository.UserRepository {
 	return &Repo{
 		byID:   make(map[string]*entity.User),
 		byCpf:  make(map[string]string),

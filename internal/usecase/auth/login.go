@@ -12,6 +12,7 @@ import (
 
 type LoginUsecase struct {
 	userRepo     repository.UserRepository
+	storeRepo    repository.StoreRepository
 	sessionRepo  repository.SessionRepository
 	jwtService   ports.JwtInterface
 	passwordHash ports.PasswordHashInterface
@@ -23,14 +24,25 @@ type LoginInput struct {
 	Password string
 }
 
+type UserLoginOutput struct {
+	ID    string          `json:"id"`
+	Email string          `json:"email"`
+	Name  string          `json:"name"`
+	Role  entity.UserKind `json:"role"`
+}
+
 type LoginOutput struct {
-	Token string `json:"token"`
+	Token       string          `json:"token"`
+	User        UserLoginOutput `json:"user"`
+	StoresCount int             `json:"stores_count"`
+	NextStep    entity.NextStep `json:"next_step"`
 }
 
 func NewLoginUsecase(
 	context context.Context,
 	userRepo repository.UserRepository,
 	sessionRepo repository.SessionRepository,
+	storeRepo repository.StoreRepository,
 	jwtService ports.JwtInterface,
 	passwordHash ports.PasswordHashInterface,
 ) *LoginUsecase {
@@ -38,6 +50,7 @@ func NewLoginUsecase(
 		context:      context,
 		userRepo:     userRepo,
 		sessionRepo:  sessionRepo,
+		storeRepo:    storeRepo,
 		jwtService:   jwtService,
 		passwordHash: passwordHash,
 	}
@@ -65,11 +78,55 @@ func (l *LoginUsecase) Execute(input LoginInput) (*LoginOutput, error) {
 		UserID:    user.ID,
 		ExpiresAt: l.jwtService.GetExpiresAt(token),
 		Role:      user.Role.String(),
-		CreatedAt: time.Now(),		
+		CreatedAt: time.Now(),
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return &LoginOutput{Token: token}, nil
+	storesQuantity, err := l.storeRepo.CountByOwnerID(l.context, user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	userRole := mapRoleToKind(user.Role)
+
+	return &LoginOutput{
+		Token: token,
+		User: UserLoginOutput{
+			ID:    user.ID,
+			Email: user.Email,
+			Name:  user.Name,
+			Role:  userRole,
+		},
+		StoresCount: storesQuantity,
+		NextStep:    decideNextStep(userRole, storesQuantity),
+	}, nil
+}
+
+func mapRoleToKind(role entity.UserRole) entity.UserKind {
+	switch role {
+	case entity.UserRoleCostumer:
+		return entity.UserKindCustomer
+	case entity.UserRoleStoreOwner, entity.UserRoleStoreEmployee:
+		return entity.UserKindStore
+	case entity.UserRoleAdmin:
+		return entity.UserKindAdmin
+	case entity.UserRoleSupport:
+		return entity.UserKindSupport
+	default:
+		// default seguro: customer
+		return entity.UserKindCustomer
+	}
+}
+
+func decideNextStep(kind entity.UserKind, storesCount int) entity.NextStep {
+	if kind == entity.UserKindCustomer {
+		return entity.NextStepBrowseStores
+	}
+	// kind == store
+	if storesCount <= 0 {
+		return entity.NextStepCreateStore
+	}
+	return entity.NextStepStoreDashboard
 }

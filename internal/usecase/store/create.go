@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+
 	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/entity"
@@ -17,8 +18,9 @@ type CreateStoreUsecase struct {
 }
 
 type CreateStoreInput struct {
-	Name string
-	Cnpj string
+	Name    string
+	Cnpj    string
+	OwnerID string
 }
 
 type CreateStoreOutput struct {
@@ -36,11 +38,12 @@ func (uc *CreateStoreUsecase) Execute(input CreateStoreInput) (*CreateStoreOutpu
 	}
 
 	store := &entity.Store{
-		Name:   input.Name,
-		Cnpj:   cnpj.Digits(),
-		ID:     uc.uuid.Generate(),
-		Slug:   input.Name,
-		IsOpen: true,
+		Name:    input.Name,
+		Cnpj:    cnpj.Digits(),
+		ID:      uc.uuid.Generate(),
+		Slug:    input.Name,
+		IsOpen:  true,
+		OwnerID: input.OwnerID,
 	}
 
 	return &CreateStoreOutput{ID: store.ID}, uc.storeRepository.Create(uc.context, store)

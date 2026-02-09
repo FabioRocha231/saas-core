@@ -7,6 +7,7 @@ import (
 
 	"github.com/FabioRocha231/saas-core/internal/domain/entity"
 	"github.com/FabioRocha231/saas-core/internal/domain/errx"
+	"github.com/FabioRocha231/saas-core/internal/port/repository"
 )
 
 type Repo struct {
@@ -14,7 +15,7 @@ type Repo struct {
 	byID map[string]*entity.Session // jti -> session
 }
 
-func New() *Repo {
+func New() repository.SessionRepository {
 	return &Repo{
 		byID: make(map[string]*entity.Session),
 	}

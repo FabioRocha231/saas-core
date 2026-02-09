@@ -1,5 +1,6 @@
 POST http://localhost:8080/store HTTP/1.1
 content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2N2RlMTI2ZC1iYTEyLTRjNTgtOGZhZC1hNGRmZjMwY2U1YmMiLCJyb2xlIjoic3RvcmVfb3duZXIiLCJpc3MiOiJzYWFzLWNvcmUiLCJleHAiOjE3NzA3MzIyNDcsImlhdCI6MTc3MDY0NTg0NywianRpIjoiNDg2MTBmZDctOTJiYS00OGMxLWEyNTgtMTM1MDU4NWQyN2RjIn0.sfh9iDy_DZTCeG56vSU3yH4j2Cz4ZtKhZttYC7oqIts
 
 {
   "name": "Empresa Fantasia",
@@ -7,4 +8,5 @@ content-type: application/json
 }
 
 ###
-GET http://localhost:8080/store/7fcf5d42-bd42-4e2a-be6e-7b2a3e4bbf7e HTTP/1.1
+GET http://localhost:8080/store/id/bee9c069-e7ba-49d6-b25d-40be75c7a5bc HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2N2RlMTI2ZC1iYTEyLTRjNTgtOGZhZC1hNGRmZjMwY2U1YmMiLCJyb2xlIjoic3RvcmVfb3duZXIiLCJpc3MiOiJzYWFzLWNvcmUiLCJleHAiOjE3NzA3MzIyNDcsImlhdCI6MTc3MDY0NTg0NywianRpIjoiNDg2MTBmZDctOTJiYS00OGMxLWEyNTgtMTM1MDU4NWQyN2RjIn0.sfh9iDy_DZTCeG56vSU3yH4j2Cz4ZtKhZttYC7oqIts
