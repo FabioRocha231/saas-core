@@ -12,9 +12,14 @@ import (
 
 	bootstrap "github.com/FabioRocha231/saas-core/internal/infra/http"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
 	// ===== Config básica =====
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -25,7 +30,7 @@ func main() {
 
 	// ===== Router =====
 	r := gin.New()
-	
+
 	// Rotas
 	bootstrap.RegisterRoutes(r)
 
