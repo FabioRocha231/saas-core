@@ -1,5 +1,6 @@
 POST http://localhost:8080/store HTTP/1.1
 content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI3M2ZkMTZjYS04NDVlLTQ1ZTAtODg4Mi1iODkzNWM2Yzg3NjIiLCJyb2xlIjoiYWRtaW4iLCJpc3MiOiJzYWFzLWNvcmUiLCJleHAiOjE3NzA2ODQ1ODQsImlhdCI6MTc3MDU5ODE4NCwianRpIjoiZDI2OWE4YTYtZDdlOS00MjJkLTgyZGMtOGI1NzU4YTUzNWM4In0.wDTSS-b2AfV_P45WyVIaqeheG8IegQsb0-JVQ3SZKus
 
 {
   "name": "Empresa Fantasia",
