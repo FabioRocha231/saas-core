@@ -13,14 +13,12 @@ import (
 )
 
 type CreateUserRequest struct {
-	Name     string  `json:"name"`
-	Email    string  `json:"email"`
-	Password string  `json:"password"`
-	Cpf      string  `json:"cpf"`
-	Phone    string  `json:"phone"`
-	StoreId  *string `json:"store_id"`
-	Status   string  `json:"status"`
-	Role     string  `json:"role"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Cpf      string `json:"cpf"`
+	Phone    string `json:"phone"`
+	UserType string `json:"user_type"`
 }
 
 type UserHandler struct {
@@ -77,31 +75,21 @@ func (h *UserHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	if strings.TrimSpace(req.Status) == "" {
-		RespondErr(ctx, errx.New(errx.CodeInvalid, "status are required"))
+	if strings.TrimSpace(req.UserType) == "" {
+		RespondErr(ctx, errx.New(errx.CodeInvalid, "user type are required"))
 		return
 	}
 
-	if strings.TrimSpace(req.Role) == "" {
-		RespondErr(ctx, errx.New(errx.CodeInvalid, "role are required"))
-		return
-	}
-
-	uc := usecase.NewCreateUserUsecase(h.userRepo, h.storeRepo, ctx, h.uuid, h.passwordHash)
 	createUserInput := usecase.CreateUserInput{
 		Name:     req.Name,
 		Email:    req.Email,
 		Cpf:      req.Cpf,
 		Password: req.Password,
 		Phone:    req.Phone,
-		Status:   req.Status,
-		Role:     req.Role,
+		UserType: req.UserType,
 	}
 
-	if req.StoreId != nil {
-		createUserInput.StoreId = req.StoreId
-	}
-
+	uc := usecase.NewCreateUserUsecase(h.userRepo, h.storeRepo, ctx, h.uuid, h.passwordHash)
 	usecaseOutput, err := uc.Execute(createUserInput)
 	if err != nil {
 		RespondErr(ctx, err)

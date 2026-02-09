@@ -68,7 +68,7 @@ func (smh *StoreMenuHandler) GetByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 
 	if id == "" {
-		RespondErr(ctx, errx.New(errx.CodeInvalid, "id are required"))
+		RespondErr(ctx, errx.New(errx.CodeInvalid, "menu id are required"))
 		return
 	}
 

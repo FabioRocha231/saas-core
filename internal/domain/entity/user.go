@@ -42,6 +42,23 @@ var UserRoleMap = map[string]UserRole{
 	"store_employee": UserRoleStoreEmployee,
 }
 
+type UserKind string
+
+const (
+	UserKindCustomer UserKind = "customer"
+	UserKindStore    UserKind = "store"
+	UserKindAdmin    UserKind = "admin"
+	UserKindSupport  UserKind = "support"
+)
+
+type NextStep string
+
+const (
+	NextStepBrowseStores   NextStep = "BROWSE_STORES"
+	NextStepCreateStore    NextStep = "CREATE_STORE"
+	NextStepStoreDashboard NextStep = "STORE_DASHBOARD"
+)
+
 type User struct {
 	ID     string
 	Name   string
@@ -50,8 +67,6 @@ type User struct {
 	Phone  string
 	Status UserStatus
 	Role   UserRole
-
-	StoreId *string
 
 	Password string
 

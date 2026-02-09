@@ -5,11 +5,9 @@ content-type: application/json
   "name": "Nome Teste",
   "email": "teste@gmail.com",
   "password": "123456",
-  
   "cpf": "856.081.860-01",
   "phone": "11999999999",
-  "status": "active",
-  "role": "admin"
+  "user_type": "store"
 }
 
 ###

@@ -25,7 +25,7 @@ func RegisterRoutes(engine *gin.Engine) {
 
 	storeHandler := handlers.NewStoreHandler(storeRepo, uuid)
 	userHandler := handlers.NewUserHandler(userRepo, storeRepo, uuid, passwordHash)
-	authHandler := handlers.NewAuthHandler(passwordHash, jwtService, userRepo, sessionRepo)
+	authHandler := handlers.NewAuthHandler(passwordHash, jwtService, userRepo, sessionRepo, storeRepo)
 	storeMenuHandler := handlers.NewStoreMenuHandler(storeRepo, storeMenuRepo, uuid)
 
 	authMiddleware := middleware.NewAuthMiddleware(jwtService, sessionRepo)
@@ -39,7 +39,9 @@ func RegisterRoutes(engine *gin.Engine) {
 
 	// Store routes
 	protected.POST("/store", storeHandler.Create)
-	protected.GET("/store/:id", storeHandler.GetByID)
+	protected.GET("/store/id/:id", storeHandler.GetByID)
+	protected.POST("/store/:storeId/menu", storeMenuHandler.Create)
+	protected.GET("/store/:storeId/menus", storeMenuHandler.ListByStoreID)
 
 	// User routes
 	protected.GET("/user/:id", userHandler.GetByID)
@@ -47,7 +49,5 @@ func RegisterRoutes(engine *gin.Engine) {
 	protected.GET("/user/cpf/:cpf", userHandler.GetByCpf)
 
 	// Menu Store routes
-	protected.POST("/stores/:storeId/menu", storeMenuHandler.Create)
-	protected.GET("/stores/:storeId/menu", storeMenuHandler.ListByStoreID)
-	protected.GET("/stores/menu/:id", storeMenuHandler.GetByID)
+	protected.GET("/menu/:id", storeMenuHandler.GetByID)
 }

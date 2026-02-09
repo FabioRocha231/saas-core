@@ -19,21 +19,24 @@ type LoginRequest struct {
 type AuthHandler struct {
 	passwordHash ports.PasswordHashInterface
 	jwtService   ports.JwtInterface
-	userStore    repository.UserRepository
-	sessionStore repository.SessionRepository
+	userRepo     repository.UserRepository
+	sessionRepo  repository.SessionRepository
+	storeRepo    repository.StoreRepository
 }
 
 func NewAuthHandler(
 	passwordHash ports.PasswordHashInterface,
 	jwtService ports.JwtInterface,
-	userStore repository.UserRepository,
-	sessionStore repository.SessionRepository,
+	userRepo repository.UserRepository,
+	sessionRepo repository.SessionRepository,
+	storeRepo repository.StoreRepository,
 ) *AuthHandler {
 	return &AuthHandler{
 		passwordHash: passwordHash,
 		jwtService:   jwtService,
-		userStore:    userStore,
-		sessionStore: sessionStore,
+		userRepo:     userRepo,
+		sessionRepo:  sessionRepo,
+		storeRepo:    storeRepo,
 	}
 }
 
@@ -55,7 +58,14 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewLoginUsecase(ctx, h.userStore, h.sessionStore, h.jwtService, h.passwordHash)
+	uc := usecase.NewLoginUsecase(
+		ctx,
+		h.userRepo,
+		h.sessionRepo,
+		h.storeRepo,
+		h.jwtService,
+		h.passwordHash,
+	)
 	output, err := uc.Execute(usecase.LoginInput{Email: req.Email, Password: req.Password})
 
 	if err != nil {

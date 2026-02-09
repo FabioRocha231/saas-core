@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/errx"
+	"github.com/FabioRocha231/saas-core/internal/infra/http/helper"
 
 	ports "github.com/FabioRocha231/saas-core/internal/port"
 	portsRepository "github.com/FabioRocha231/saas-core/internal/port/repository"
@@ -28,6 +29,12 @@ func NewStoreHandler(repo portsRepository.StoreRepository, uuid ports.UUIDInterf
 
 // TODO pedir endereço para cadastro
 func (sh *StoreHandler) Create(ctx *gin.Context) {
+	userID, err := helper.GetUserIDFromContext(ctx)
+	if err != nil {
+		RespondErr(ctx, err)
+		return
+	}
+
 	var req CreateStoreRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		RespondErr(ctx, err)
@@ -45,7 +52,11 @@ func (sh *StoreHandler) Create(ctx *gin.Context) {
 	}
 
 	uc := usecase.NewCreateStoreUsecase(sh.storeRepository, ctx, sh.uuid)
-	output, err := uc.Execute(usecase.CreateStoreInput{Name: req.Name, Cnpj: req.Cnpj})
+	output, err := uc.Execute(usecase.CreateStoreInput{
+		Name:    req.Name,
+		Cnpj:    req.Cnpj,
+		OwnerID: userID,
+	})
 
 	if err != nil {
 		RespondErr(ctx, err)

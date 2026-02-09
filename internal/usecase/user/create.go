@@ -2,8 +2,9 @@ package usecase
 
 import (
 	"context"
-	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 	"time"
+
+	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/entity"
 	valueobject "github.com/FabioRocha231/saas-core/internal/domain/value_object"
@@ -26,8 +27,7 @@ type CreateUserInput struct {
 	Password string
 	StoreId  *string
 	Phone    string
-	Status   string
-	Role     string
+	UserType string
 }
 
 type CreateUserOutput struct {
@@ -62,33 +62,19 @@ func (uc *CreateUserUsecase) Execute(input CreateUserInput) (*CreateUserOutput, 
 		Email:     input.Email,
 		Cpf:       cpf.Digits(),
 		Phone:     input.Phone,
+		Status:    entity.UserStatusActive,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
 
-	if input.StoreId != nil {
-		isValidUuid := uc.uuid.Validate(*input.StoreId)
-		if !isValidUuid {
-			return nil, errx.New(errx.CodeInvalid, "invalid store id")
-		}
-		store, err := uc.storeRepo.GetByID(uc.context, *input.StoreId)
-		if err != nil {
-			return nil, err
-		}
-		user.StoreId = &store.ID
+	switch input.UserType {
+	case string(entity.UserKindCustomer):
+		user.Role = entity.UserRoleCostumer
+	case string(entity.UserKindStore):
+		user.Role = entity.UserRoleStoreOwner
+	default:
+		return nil, errx.New(errx.CodeInvalid, "invalid user type")
 	}
-
-	roleValue, okRole := entity.UserRoleMap[input.Role]
-	if !okRole || roleValue == "" {
-		return nil, errx.New(errx.CodeInvalid, "invalid user role")
-	}
-	user.Role = roleValue
-
-	statusValue, okValue := entity.UserStatusMap[input.Status]
-	if !okValue || statusValue == "" {
-		return nil, errx.New(errx.CodeInvalid, "invalid user status")
-	}
-	user.Status = statusValue
 
 	hash, err := uc.passwordHash.Hash(input.Password)
 	if err != nil {

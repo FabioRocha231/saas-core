@@ -11,15 +11,17 @@ import (
 )
 
 type Repo struct {
-	mu     sync.RWMutex
-	byID   map[string]*entity.Store
-	bySlug map[string]string // slug -> id
+	mu        sync.RWMutex
+	byID      map[string]*entity.Store
+	bySlug    map[string]string   // slug -> id
+	byOwnerID map[string][]string // ownerID -> []id
 }
 
 func New() repository.StoreRepository {
 	return &Repo{
-		byID:   make(map[string]*entity.Store),
-		bySlug: make(map[string]string),
+		byID:      make(map[string]*entity.Store),
+		bySlug:    make(map[string]string),
+		byOwnerID: make(map[string][]string),
 	}
 }
 
@@ -38,6 +40,7 @@ func (r *Repo) Create(ctx context.Context, s *entity.Store) error {
 	cp := *s
 	r.byID[cp.ID] = &cp
 	r.bySlug[cp.Slug] = cp.ID
+	r.byOwnerID[cp.OwnerID] = append(r.byOwnerID[cp.OwnerID], cp.ID)
 
 	return nil
 }
@@ -71,4 +74,18 @@ func (r *Repo) GetBySlug(ctx context.Context, slug string) (*entity.Store, error
 
 	cp := *s
 	return &cp, nil
+}
+
+func (r *Repo) CountByOwnerID(ctx context.Context, ownerID string) (int, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	ids, ok := r.byOwnerID[ownerID]
+	if !ok {
+		return 0, nil
+	}
+
+	count := len(ids)
+
+	return count, nil
 }
