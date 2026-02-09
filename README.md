@@ -29,12 +29,12 @@ Arquitetura baseada em **Clean Architecture / Hexagonal**:
 
 ```
 
-cmd/api              → Entrypoint da aplicação
-internal/domain      → Domínio puro (entities, regras)
-internal/usecase     → Casos de uso (regras de aplicação)
-internal/infra       → HTTP, middleware, repos in-memory
-internal/port        → Interfaces (ports)
-pkg                  → Infra técnica (jwt, password, uuid)
+cmd/api → Entrypoint da aplicação
+internal/domain → Domínio puro (entities, regras)
+internal/usecase → Casos de uso (regras de aplicação)
+internal/infra → HTTP, middleware, repos in-memory
+internal/port → Interfaces (ports)
+pkg → Infra técnica (jwt, password, uuid)
 
 ```
 
@@ -169,22 +169,45 @@ else:
 
 ---
 
-## 🍽️ Domínio de Cardápio
+## 🍽️ Domínio de Cardápio (Detalhado)
 
-O cardápio foi modelado para suportar **configurações complexas** (pizza, combos, adicionais, variações).
+O cardápio foi projetado para suportar **produtos complexos**, como pizzas, combos, adicionais e variações.
 
-### Hierarquia
+### Hierarquia Conceitual
 
 ```
 Store
  └── Menu
-      └── Category
-           └── Item
-                ├── VariantGroup
+      └── MenuCategory
+           └── CategoryItem
+                ├── ItemVariantGroup
                 │     └── VariantOption
                 └── AddonGroup
                       └── AddonOption
 ```
+
+### Responsabilidade de cada entidade
+
+- **Menu**
+  - Cardápio principal de uma loja
+
+- **MenuCategory**
+  - Agrupa itens (ex: Pizzas, Bebidas)
+
+- **CategoryItem**
+  - Produto final (ex: Pizza Calabresa)
+
+- **ItemVariantGroup**
+  - Grupo de variações (ex: Tamanho)
+
+- **VariantOption**
+  - Opção da variação (ex: Grande +R$10)
+
+- **AddonGroup**
+  - Grupo de adicionais (ex: Adicionais)
+
+- **AddonOption**
+  - Adicional selecionável (ex: Bacon +R$5)
 
 ---
 
@@ -197,8 +220,119 @@ Item.BasePrice
 + soma(AddonOption.Price * quantidade)
 ```
 
-- Variações usam `PriceDelta`
-- Adicionais usam `Price`
+- Variações alteram o preço via `PriceDelta`
+- Adicionais somam preço fixo por unidade
+
+---
+
+## 📐 UML — Relacionamento das Entidades de Cardápio
+
+> PlantUML — pode ser colado em qualquer viewer compatível
+
+```plantuml
+@startuml
+skinparam classAttributeIconSize 0
+
+class Store {
+  +ID: string
+  +Name: string
+  +Slug: string
+  +IsOpen: bool
+  +Cnpj: string
+  +OwnerID: string
+}
+
+class StoreMenu {
+  +ID: string
+  +StoreID: string
+  +Name: string
+  +IsActive: bool
+  +CreatedAt: time
+  +UpdatedAt: time
+}
+
+class MenuCategory {
+  +ID: string
+  +MenuID: string
+  +Name: string
+  +IsActive: bool
+  +CreatedAt: time
+  +UpdatedAt: time
+}
+
+class CategoryItem {
+  +ID: string
+  +CategoryID: string
+  +Name: string
+  +Description: string
+  +BasePrice: int64
+  +ImageURL: string
+  +IsActive: bool
+  +CreatedAt: time
+  +UpdatedAt: time
+}
+
+class ItemVariantGroup {
+  +ID: string
+  +ItemID: string
+  +Name: string
+  +Required: bool
+  +MinSelect: int
+  +MaxSelect: int
+  +Order: int
+  +IsActive: bool
+  +CreatedAt: time
+  +UpdatedAt: time
+}
+
+class VariantOption {
+  +ID: string
+  +GroupID: string
+  +Name: string
+  +PriceDelta: int64
+  +IsDefault: bool
+  +Order: int
+  +IsActive: bool
+  +CreatedAt: time
+  +UpdatedAt: time
+}
+
+class AddonGroup {
+  +ID: string
+  +ItemID: string
+  +Name: string
+  +Required: bool
+  +MinSelect: int
+  +MaxSelect: int
+  +Order: int
+  +IsActive: bool
+  +CreatedAt: time
+  +UpdatedAt: time
+}
+
+class AddonOption {
+  +ID: string
+  +GroupID: string
+  +Name: string
+  +Price: int64
+  +Order: int
+  +IsActive: bool
+  +CreatedAt: time
+  +UpdatedAt: time
+}
+
+Store "1" --> "N" StoreMenu : StoreID
+StoreMenu "1" --> "N" MenuCategory : MenuID
+MenuCategory "1" --> "N" CategoryItem : CategoryID
+
+CategoryItem "1" --> "N" ItemVariantGroup : ItemID
+ItemVariantGroup "1" --> "N" VariantOption : GroupID
+
+CategoryItem "1" --> "N" AddonGroup : ItemID
+AddonGroup "1" --> "N" AddonOption : GroupID
+
+@enduml
+```
 
 ---
 
@@ -209,20 +343,18 @@ Item.BasePrice
 - `POST /user` → cria usuário
 - `POST /login` → login (retorna token + next_step)
 
----
-
 ### Protegidas (JWT)
 
 #### Store
 
-- `POST /store` → cria loja
-- `GET /store/id/:id` → busca loja por id
+- `POST /store`
+- `GET /store/id/:id`
 
 #### Menus
 
-- `POST /store/:storeId/menu` → cria menu para a loja
-- `GET /store/:storeId/menus` → lista menus da loja
-- `GET /menu/:id` → busca menu por id
+- `POST /store/:storeId/menu`
+- `GET /store/:storeId/menus`
+- `GET /menu/:id`
 
 #### User
 
@@ -251,6 +383,7 @@ Item.BasePrice
 - Value Objects:
   - CPF
   - CNPJ
+
 - Password hash (bcrypt)
 
 ---

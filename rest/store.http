@@ -1,6 +1,18 @@
+# @name login
+POST http://localhost:8080/login HTTP/1.1
+content-type: application/json
+
+{
+  "email": "teste@gmail.com",
+  "password": "123456"
+}
+
+@token = {{login.response.body.data.token}}
+
+###
 POST http://localhost:8080/store HTTP/1.1
 content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2N2RlMTI2ZC1iYTEyLTRjNTgtOGZhZC1hNGRmZjMwY2U1YmMiLCJyb2xlIjoic3RvcmVfb3duZXIiLCJpc3MiOiJzYWFzLWNvcmUiLCJleHAiOjE3NzA3MzIyNDcsImlhdCI6MTc3MDY0NTg0NywianRpIjoiNDg2MTBmZDctOTJiYS00OGMxLWEyNTgtMTM1MDU4NWQyN2RjIn0.sfh9iDy_DZTCeG56vSU3yH4j2Cz4ZtKhZttYC7oqIts
+Authorization: Bearer {{token}}
 
 {
   "name": "Empresa Fantasia",
@@ -8,5 +20,5 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2N2RlMTI2Z
 }
 
 ###
-GET http://localhost:8080/store/id/bee9c069-e7ba-49d6-b25d-40be75c7a5bc HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2N2RlMTI2ZC1iYTEyLTRjNTgtOGZhZC1hNGRmZjMwY2U1YmMiLCJyb2xlIjoic3RvcmVfb3duZXIiLCJpc3MiOiJzYWFzLWNvcmUiLCJleHAiOjE3NzA3MzIyNDcsImlhdCI6MTc3MDY0NTg0NywianRpIjoiNDg2MTBmZDctOTJiYS00OGMxLWEyNTgtMTM1MDU4NWQyN2RjIn0.sfh9iDy_DZTCeG56vSU3yH4j2Cz4ZtKhZttYC7oqIts
+GET http://localhost:8080/store/id/eb332343-a1c4-4c0c-809e-f3bacebfcae4 HTTP/1.1
+Authorization: Bearer {{token}}
