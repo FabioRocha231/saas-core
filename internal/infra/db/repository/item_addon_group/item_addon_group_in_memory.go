@@ -1,4 +1,4 @@
-package memoryaddongroup
+package memoryitemaddongroup
 
 import (
 	"context"
@@ -16,7 +16,7 @@ type Repo struct {
 	byItem map[string][]string // itemID -> []groupID
 }
 
-func New() repository.AddonGroupRepository {
+func New() repository.ItemAddonGroupRepository {
 	return &Repo{
 		byID:   make(map[string]*entity.AddonGroup),
 		byItem: make(map[string][]string),
