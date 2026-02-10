@@ -89,3 +89,25 @@ func (r *Repo) CountByOwnerID(ctx context.Context, ownerID string) (int, error) 
 
 	return count, nil
 }
+
+func (r *Repo) ListByOwnerID(ctx context.Context, ownerID string) ([]*entity.Store, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	ids, ok := r.byOwnerID[ownerID]
+	if !ok {
+		return nil, nil
+	}
+
+	stores := make([]*entity.Store, 0, len(ids))
+	for _, id := range ids {
+		s, ok := r.byID[id]
+		if !ok {
+			continue
+		}
+		cp := *s
+		stores = append(stores, &cp)
+	}
+
+	return stores, nil
+}

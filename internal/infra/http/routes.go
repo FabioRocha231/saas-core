@@ -29,7 +29,15 @@ func RegisterRoutes(engine *gin.Engine) {
 	itemCategoryRepo := memorycategoryitem.New()
 	jwtService := pkg.NewJwtService(os.Getenv("JWT_SECRET"), 24*time.Hour, "saas-core", uuid)
 
-	seed.Seed(context.Background(), userRepo, passwordHash, uuid)
+	seed.Seed(
+		context.Background(),
+		userRepo,
+		storeRepo,
+		storeMenuRepo,
+		menuCategoryRepo,
+		itemCategoryRepo,
+		passwordHash,
+	)
 
 	storeHandler := handlers.NewStoreHandler(storeRepo, uuid)
 	userHandler := handlers.NewUserHandler(userRepo, storeRepo, uuid, passwordHash)

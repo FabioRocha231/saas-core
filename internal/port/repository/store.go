@@ -11,4 +11,5 @@ type StoreRepository interface {
 	GetByID(ctx context.Context, id string) (*entity.Store, error)
 	GetBySlug(ctx context.Context, slug string) (*entity.Store, error)
 	CountByOwnerID(ctx context.Context, ownerID string) (int, error)
+	ListByOwnerID(ctx context.Context, ownerID string) ([]*entity.Store, error)
 }

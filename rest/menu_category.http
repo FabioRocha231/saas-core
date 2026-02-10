@@ -20,9 +20,9 @@ Authorization: Bearer {{token}}
 }
 
 ###
-GET http://localhost:8080/menu/categories/98d17502-8915-49dc-8304-73069db5f72f HTTP/1.1
+GET http://localhost:8080/menu/categories/33333333-3333-3333-3333-333333333333 HTTP/1.1
 Authorization: Bearer {{token}}
 
 ###
-GET http://localhost:8080/menu/category/f6dfc2a0-a464-42ae-964c-5eeadcf68f2e HTTP/1.1
+GET http://localhost:8080/menu/category/44444444-4444-4444-4444-444444444444 HTTP/1.1
 Authorization: Bearer {{token}}
