@@ -10,7 +10,7 @@ content-type: application/json
 @token = {{login.response.body.data.token}}
 
 ###
-POST http://localhost:8080/menu/906809e1-25ae-40ce-91d5-af90313868b9/category HTTP/1.1
+POST http://localhost:8080/menu/98d17502-8915-49dc-8304-73069db5f72f/category HTTP/1.1
 content-type: application/json
 Authorization: Bearer {{token}}
 
@@ -20,7 +20,7 @@ Authorization: Bearer {{token}}
 }
 
 ###
-GET http://localhost:8080/menu/categories/906809e1-25ae-40ce-91d5-af90313868b9 HTTP/1.1
+GET http://localhost:8080/menu/categories/98d17502-8915-49dc-8304-73069db5f72f HTTP/1.1
 Authorization: Bearer {{token}}
 
 ###
