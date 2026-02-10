@@ -20,10 +20,10 @@ Authorization: Bearer {{token}}
 }
 
 ###
-GET http://localhost:8080/store/3096b57e-5d4c-4e75-875f-a57d1aafbeb7/menus HTTP/1.1
+GET http://localhost:8080/store/22222222-2222-2222-2222-222222222222/menus HTTP/1.1
 Authorization: Bearer {{token}}
 
 ###
-GET http://localhost:8080/menu/bd616188-7278-4b9d-b9d6-d0428d4f5939 HTTP/1.1
+GET http://localhost:8080/menu/33333333-3333-3333-3333-333333333333 HTTP/1.1
 Authorization: Bearer {{token}}
 

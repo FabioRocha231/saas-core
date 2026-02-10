@@ -10,7 +10,7 @@ content-type: application/json
 @token = {{login.response.body.data.token}}
 
 ###
-POST http://localhost:8080/menu/category/e7b8df06-ba8b-4070-995a-e548e498d0ba/item HTTP/1.1
+POST http://localhost:8080/menu/category/44444444-4444-4444-4444-444444444444/item HTTP/1.1
 content-type: application/json
 Authorization: Bearer {{token}}
 
@@ -22,9 +22,9 @@ Authorization: Bearer {{token}}
 }
 
 ###
-GET http://localhost:8080/menu/category/item/1c9b8e5e-9c8e-4b1a-9c8e-9c8e9c8e9c8e HTTP/1.1
+GET http://localhost:8080/menu/category/item/66666666-6666-6666-6666-666666666666 HTTP/1.1
 Authorization: Bearer {{token}}
 
 ###
-GET http://localhost:8080/menu/category/items/e7b8df06-ba8b-4070-995a-e548e498d0ba HTTP/1.1
+GET http://localhost:8080/menu/category/items/44444444-4444-4444-4444-444444444444 HTTP/1.1
 Authorization: Bearer {{token}}
