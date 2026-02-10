@@ -1,0 +1,30 @@
+# @name login
+POST http://localhost:8080/login HTTP/1.1
+content-type: application/json
+
+{
+  "email": "teste@gmail.com",
+  "password": "123456"
+}
+
+@token = {{login.response.body.data.token}}
+
+###
+POST http://localhost:8080/menu/category/e7b8df06-ba8b-4070-995a-e548e498d0ba/item HTTP/1.1
+content-type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Coca-cola",
+  "description": "Refrigerante sabor cola",
+  "base_price": 500,
+  "is_active": true
+}
+
+###
+GET http://localhost:8080/menu/category/item/1c9b8e5e-9c8e-4b1a-9c8e-9c8e9c8e9c8e HTTP/1.1
+Authorization: Bearer {{token}}
+
+###
+GET http://localhost:8080/menu/category/items/e7b8df06-ba8b-4070-995a-e548e498d0ba HTTP/1.1
+Authorization: Bearer {{token}}

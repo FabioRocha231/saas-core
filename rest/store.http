@@ -20,5 +20,5 @@ Authorization: Bearer {{token}}
 }
 
 ###
-GET http://localhost:8080/store/id/eb332343-a1c4-4c0c-809e-f3bacebfcae4 HTTP/1.1
+GET http://localhost:8080/store/id/3096b57e-5d4c-4e75-875f-a57d1aafbeb7 HTTP/1.1
 Authorization: Bearer {{token}}
