@@ -3,8 +3,8 @@ package entity
 import "time"
 
 type AddonOption struct {
-	ID      string
-	GroupID string
+	ID           string
+	AddonGroupID string
 
 	Name     string
 	Price    int64 // centavos (preço do adicional)

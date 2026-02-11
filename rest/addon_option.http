@@ -1,0 +1,30 @@
+# @name login
+POST http://localhost:8080/login HTTP/1.1
+content-type: application/json
+
+{
+  "email": "teste@gmail.com",
+  "password": "123456"
+}
+
+@token = {{login.response.body.data.token}}
+
+###
+POST http://localhost:8080/addon-group/99999999-9999-9999-9999-999999999999/addon-option HTTP/1.1
+content-type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Presunto",
+  "price": 50,
+  "order": 1,
+  "is_active": true
+}
+
+###
+GET http://localhost:8080/addon-option/79763686-8333-4ff0-83b0-830b0501885c HTTP/1.1
+Authorization: Bearer {{token}}
+
+###
+GET http://localhost:8080/addon-group/99999999-9999-9999-9999-999999999999/addon-options HTTP/1.1
+Authorization: Bearer {{token}}

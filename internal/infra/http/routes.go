@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	memoryaddonoption "github.com/FabioRocha231/saas-core/internal/infra/db/repository/addon_option"
 	memorycategoryitem "github.com/FabioRocha231/saas-core/internal/infra/db/repository/category_item"
 	memoryitemaddongroup "github.com/FabioRocha231/saas-core/internal/infra/db/repository/item_addon_group"
 	memorymenucategory "github.com/FabioRocha231/saas-core/internal/infra/db/repository/menu_category"
@@ -29,6 +30,7 @@ func RegisterRoutes(engine *gin.Engine) {
 	menuCategoryRepo := memorymenucategory.New()
 	itemCategoryRepo := memorycategoryitem.New()
 	itemAddonGroupRepo := memoryitemaddongroup.New()
+	addonOptionRepo := memoryaddonoption.New()
 	jwtService := pkg.NewJwtService(os.Getenv("JWT_SECRET"), 24*time.Hour, "saas-core", uuid)
 
 	seed.Seed(
@@ -39,6 +41,7 @@ func RegisterRoutes(engine *gin.Engine) {
 		menuCategoryRepo,
 		itemCategoryRepo,
 		itemAddonGroupRepo,
+		addonOptionRepo,
 		passwordHash,
 	)
 
@@ -49,6 +52,7 @@ func RegisterRoutes(engine *gin.Engine) {
 	menuCategoryHandler := handlers.NewMenuCategoryHandler(menuCategoryRepo, storeMenuRepo, uuid)
 	categoryItemHandler := handlers.NewCategoryItemHandler(itemCategoryRepo, menuCategoryRepo, uuid)
 	itemAddonGroupHandler := handlers.NewItemAddonGroupHandler(itemAddonGroupRepo, itemCategoryRepo, uuid)
+	addonOptionHandler := handlers.NewAddonOptionHandler(addonOptionRepo, itemAddonGroupRepo, uuid)
 
 	authMiddleware := middleware.NewAuthMiddleware(jwtService, sessionRepo)
 
@@ -87,4 +91,9 @@ func RegisterRoutes(engine *gin.Engine) {
 	protected.POST("/item/:categoryItemId/addon-group", itemAddonGroupHandler.Create)
 	protected.GET("/item/addon-group/:id", itemAddonGroupHandler.GetByID)
 	protected.GET("/item/:categoryItemId/addon-groups", itemAddonGroupHandler.ListByCategoryItemID)
+
+	// addon option routes
+	protected.POST("/addon-group/:itemAddonGroupId/addon-option", addonOptionHandler.Create)
+	protected.GET("/addon-option/:id", addonOptionHandler.GetByID)
+	protected.GET("/addon-group/:itemAddonGroupId/addon-options", addonOptionHandler.GetByItemAddonGroupID)
 }
