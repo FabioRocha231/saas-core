@@ -2,9 +2,9 @@ package entity
 
 import "time"
 
-type AddonGroup struct {
-	ID     string
-	ItemID string
+type ItemAddonGroup struct {
+	ID             string
+	CategoryItemID string
 
 	Name      string
 	Required  bool
