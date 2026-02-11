@@ -26,7 +26,7 @@ type CreateItemAddonGroupInput struct {
 	IsActive       bool
 }
 
-type CreateItemAddonGroupResponse struct {
+type CreateItemAddonGroupOutput struct {
 	ID string
 }
 
@@ -44,7 +44,7 @@ func NewCreateItemAddonGroupUseCase(
 	}
 }
 
-func (uc *CreateItemAddonGroupUseCase) Execute(input CreateItemAddonGroupInput) (*CreateItemAddonGroupResponse, error) {
+func (uc *CreateItemAddonGroupUseCase) Execute(input CreateItemAddonGroupInput) (*CreateItemAddonGroupOutput, error) {
 	isValidUuid := uc.uuid.Validate(input.CategoryItemID)
 	if !isValidUuid {
 		return nil, errx.New(errx.CodeInvalid, "invalid category item ID")
@@ -71,7 +71,7 @@ func (uc *CreateItemAddonGroupUseCase) Execute(input CreateItemAddonGroupInput) 
 		return nil, err
 	}
 
-	return &CreateItemAddonGroupResponse{
+	return &CreateItemAddonGroupOutput{
 		ID: itemAddonGroup.ID,
 	}, nil
 }
