@@ -1,4 +1,4 @@
-package memoryaddongroup
+package memoryitemaddongroup
 
 import (
 	"context"
@@ -11,19 +11,19 @@ import (
 )
 
 type Repo struct {
-	mu     sync.RWMutex
-	byID   map[string]*entity.AddonGroup
-	byItem map[string][]string // itemID -> []groupID
+	mu             sync.RWMutex
+	byID           map[string]*entity.ItemAddonGroup
+	ByCategoryItem map[string][]string // itemID -> []groupID
 }
 
-func New() repository.AddonGroupRepository {
+func New() repository.ItemAddonGroupRepository {
 	return &Repo{
-		byID:   make(map[string]*entity.AddonGroup),
-		byItem: make(map[string][]string),
+		byID:           make(map[string]*entity.ItemAddonGroup),
+		ByCategoryItem: make(map[string][]string),
 	}
 }
 
-func (r *Repo) Create(ctx context.Context, g *entity.AddonGroup) error {
+func (r *Repo) Create(ctx context.Context, g *entity.ItemAddonGroup) error {
 	_ = ctx
 
 	if g == nil {
@@ -32,8 +32,8 @@ func (r *Repo) Create(ctx context.Context, g *entity.AddonGroup) error {
 	if g.ID == "" {
 		return errx.New(errx.CodeInvalid, "missing id")
 	}
-	if g.ItemID == "" {
-		return errx.New(errx.CodeInvalid, "missing itemId")
+	if g.CategoryItemID == "" {
+		return errx.New(errx.CodeInvalid, "missing category item ID")
 	}
 	if g.Name == "" {
 		return errx.New(errx.CodeInvalid, "missing name")
@@ -58,12 +58,12 @@ func (r *Repo) Create(ctx context.Context, g *entity.AddonGroup) error {
 
 	cp := cloneAddonGroup(g)
 	r.byID[cp.ID] = cp
-	r.byItem[cp.ItemID] = append(r.byItem[cp.ItemID], cp.ID)
+	r.ByCategoryItem[cp.CategoryItemID] = append(r.ByCategoryItem[cp.CategoryItemID], cp.ID)
 
 	return nil
 }
 
-func (r *Repo) GetByID(ctx context.Context, id string) (*entity.AddonGroup, error) {
+func (r *Repo) GetByID(ctx context.Context, id string) (*entity.ItemAddonGroup, error) {
 	_ = ctx
 
 	if id == "" {
@@ -80,16 +80,16 @@ func (r *Repo) GetByID(ctx context.Context, id string) (*entity.AddonGroup, erro
 	return cloneAddonGroup(g), nil
 }
 
-func (r *Repo) ListByItemID(ctx context.Context, itemID string) ([]*entity.AddonGroup, error) {
+func (r *Repo) ListByCategoryItemID(ctx context.Context, categoryItemID string) ([]*entity.ItemAddonGroup, error) {
 	_ = ctx
 
-	if itemID == "" {
-		return nil, errx.New(errx.CodeInvalid, "missing itemId")
+	if categoryItemID == "" {
+		return nil, errx.New(errx.CodeInvalid, "missing category item ID")
 	}
 
 	r.mu.RLock()
-	ids := r.byItem[itemID]
-	out := make([]*entity.AddonGroup, 0, len(ids))
+	ids := r.ByCategoryItem[categoryItemID]
+	out := make([]*entity.ItemAddonGroup, 0, len(ids))
 	for _, id := range ids {
 		if g := r.byID[id]; g != nil {
 			out = append(out, cloneAddonGroup(g))
@@ -100,7 +100,7 @@ func (r *Repo) ListByItemID(ctx context.Context, itemID string) ([]*entity.Addon
 	return out, nil
 }
 
-func cloneAddonGroup(g *entity.AddonGroup) *entity.AddonGroup {
+func cloneAddonGroup(g *entity.ItemAddonGroup) *entity.ItemAddonGroup {
 	if g == nil {
 		return nil
 	}

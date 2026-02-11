@@ -1,0 +1,32 @@
+# @name login
+POST http://localhost:8080/login HTTP/1.1
+content-type: application/json
+
+{
+  "email": "teste@gmail.com",
+  "password": "123456"
+}
+
+@token = {{login.response.body.data.token}}
+
+###
+POST http://localhost:8080/item/66666666-6666-6666-6666-666666666666/addon-group HTTP/1.1
+content-type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Adicionais",
+  "required": false,
+  "min_select": 1,
+  "max_select": 1,
+  "order": 1,
+  "is_active": true
+}
+
+###
+GET http://localhost:8080/item/66666666-6666-6666-6666-666666666666/addon-groups HTTP/1.1
+Authorization: Bearer {{token}}
+
+###
+GET http://localhost:8080/item/addon-group/3dbf1f59-aef9-4aa4-9fc4-b1666683277c HTTP/1.1
+Authorization: Bearer {{token}}

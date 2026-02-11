@@ -6,6 +6,7 @@ import (
 	"time"
 
 	memorycategoryitem "github.com/FabioRocha231/saas-core/internal/infra/db/repository/category_item"
+	memoryitemaddongroup "github.com/FabioRocha231/saas-core/internal/infra/db/repository/item_addon_group"
 	memorymenucategory "github.com/FabioRocha231/saas-core/internal/infra/db/repository/menu_category"
 	memorysession "github.com/FabioRocha231/saas-core/internal/infra/db/repository/session"
 	memorystore "github.com/FabioRocha231/saas-core/internal/infra/db/repository/store"
@@ -27,6 +28,7 @@ func RegisterRoutes(engine *gin.Engine) {
 	storeMenuRepo := memorystoremenu.New()
 	menuCategoryRepo := memorymenucategory.New()
 	itemCategoryRepo := memorycategoryitem.New()
+	itemAddonGroupRepo := memoryitemaddongroup.New()
 	jwtService := pkg.NewJwtService(os.Getenv("JWT_SECRET"), 24*time.Hour, "saas-core", uuid)
 
 	seed.Seed(
@@ -36,6 +38,7 @@ func RegisterRoutes(engine *gin.Engine) {
 		storeMenuRepo,
 		menuCategoryRepo,
 		itemCategoryRepo,
+		itemAddonGroupRepo,
 		passwordHash,
 	)
 
@@ -45,6 +48,7 @@ func RegisterRoutes(engine *gin.Engine) {
 	storeMenuHandler := handlers.NewStoreMenuHandler(storeRepo, storeMenuRepo, uuid)
 	menuCategoryHandler := handlers.NewMenuCategoryHandler(menuCategoryRepo, storeMenuRepo, uuid)
 	categoryItemHandler := handlers.NewCategoryItemHandler(itemCategoryRepo, menuCategoryRepo, uuid)
+	itemAddonGroupHandler := handlers.NewItemAddonGroupHandler(itemAddonGroupRepo, itemCategoryRepo, uuid)
 
 	authMiddleware := middleware.NewAuthMiddleware(jwtService, sessionRepo)
 
@@ -78,4 +82,9 @@ func RegisterRoutes(engine *gin.Engine) {
 	protected.POST("/menu/category/:categoryId/item", categoryItemHandler.Create)
 	protected.GET("/menu/category/item/:id", categoryItemHandler.GetByID)
 	protected.GET("/menu/category/items/:categoryId", categoryItemHandler.ListByCategoryID)
+
+	// item addon group routes
+	protected.POST("/item/:categoryItemId/addon-group", itemAddonGroupHandler.Create)
+	protected.GET("/item/addon-group/:id", itemAddonGroupHandler.GetByID)
+	protected.GET("/item/:categoryItemId/addon-groups", itemAddonGroupHandler.ListByCategoryItemID)
 }
