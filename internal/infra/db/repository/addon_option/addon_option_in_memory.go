@@ -32,7 +32,7 @@ func (r *Repo) Create(ctx context.Context, o *entity.AddonOption) error {
 	if o.ID == "" {
 		return errx.New(errx.CodeInvalid, "missing id")
 	}
-	if o.GroupID == "" {
+	if o.AddonGroupID == "" {
 		return errx.New(errx.CodeInvalid, "missing groupId")
 	}
 	if o.Name == "" {
@@ -58,7 +58,7 @@ func (r *Repo) Create(ctx context.Context, o *entity.AddonOption) error {
 
 	cp := cloneAddonOption(o)
 	r.byID[cp.ID] = cp
-	r.byGroup[cp.GroupID] = append(r.byGroup[cp.GroupID], cp.ID)
+	r.byGroup[cp.AddonGroupID] = append(r.byGroup[cp.AddonGroupID], cp.ID)
 
 	return nil
 }

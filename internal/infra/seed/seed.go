@@ -26,6 +26,14 @@ const (
 
 	SeedAddonGroupCheddarAdds  = "99999999-9999-9999-9999-999999999999"
 	SeedAddonGroupCheddarSauce = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+
+	// Addon Options (UUIDs conhecidos)
+	SeedAddonOptAddsBacon   = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+	SeedAddonOptAddsCheddar = "cccccccc-cccc-cccc-cccc-cccccccccccc"
+	SeedAddonOptAddsOnion   = "dddddddd-dddd-dddd-dddd-dddddddddddd"
+
+	SeedAddonOptSauceHouse = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"
+	SeedAddonOptSauceBBQ   = "ffffffff-ffff-ffff-ffff-ffffffffffff"
 )
 
 func Seed(
@@ -36,6 +44,7 @@ func Seed(
 	categoryRepo repository.MenuCategoryRepository,
 	itemRepo repository.CategoryItemRepository,
 	addonGroupRepo repository.ItemAddonGroupRepository,
+	addonOptionRepo repository.AddonOptionRepository,
 	password ports.PasswordHashInterface,
 ) {
 	if os.Getenv("APP_ENV") != "dev" {
@@ -132,17 +141,18 @@ func Seed(
 	}
 
 	if len(cats) == 0 {
-		seedCategoriesItemsAndAddonGroups(ctx, categoryRepo, itemRepo, addonGroupRepo, now, m.ID)
+		seedCategoriesItemsGroupsAndOptions(ctx, categoryRepo, itemRepo, addonGroupRepo, addonOptionRepo, now, m.ID)
 	}
 
 	log.Printf("seed ok: user=%s store=%s menu=%s", u.ID, s.ID, m.ID)
 }
 
-func seedCategoriesItemsAndAddonGroups(
+func seedCategoriesItemsGroupsAndOptions(
 	ctx context.Context,
 	categoryRepo repository.MenuCategoryRepository,
 	itemRepo repository.CategoryItemRepository,
 	addonGroupRepo repository.ItemAddonGroupRepository,
+	addonOptionRepo repository.AddonOptionRepository,
 	now time.Time,
 	menuID string,
 ) {
@@ -211,6 +221,60 @@ func seedCategoriesItemsAndAddonGroups(
 		IsActive:       true,
 		CreatedAt:      now,
 		UpdatedAt:      now,
+	})
+
+	// Addon Options - Adicionais
+	_ = addonOptionRepo.Create(ctx, &entity.AddonOption{
+		ID:           SeedAddonOptAddsBacon,
+		AddonGroupID: SeedAddonGroupCheddarAdds,
+		Name:         "Bacon",
+		Price:        500,
+		Order:        1,
+		IsActive:     true,
+		CreatedAt:    now,
+		UpdatedAt:    now,
+	})
+	_ = addonOptionRepo.Create(ctx, &entity.AddonOption{
+		ID:           SeedAddonOptAddsCheddar,
+		AddonGroupID: SeedAddonGroupCheddarAdds,
+		Name:         "Cheddar extra",
+		Price:        400,
+		Order:        2,
+		IsActive:     true,
+		CreatedAt:    now,
+		UpdatedAt:    now,
+	})
+	_ = addonOptionRepo.Create(ctx, &entity.AddonOption{
+		ID:           SeedAddonOptAddsOnion,
+		AddonGroupID: SeedAddonGroupCheddarAdds,
+		Name:         "Cebola caramelizada",
+		Price:        350,
+		Order:        3,
+		IsActive:     true,
+		CreatedAt:    now,
+		UpdatedAt:    now,
+	})
+
+	// Addon Options - Molhos
+	_ = addonOptionRepo.Create(ctx, &entity.AddonOption{
+		ID:           SeedAddonOptSauceHouse,
+		AddonGroupID: SeedAddonGroupCheddarSauce,
+		Name:         "Molho da casa",
+		Price:        0,
+		Order:        1,
+		IsActive:     true,
+		CreatedAt:    now,
+		UpdatedAt:    now,
+	})
+	_ = addonOptionRepo.Create(ctx, &entity.AddonOption{
+		ID:           SeedAddonOptSauceBBQ,
+		AddonGroupID: SeedAddonGroupCheddarSauce,
+		Name:         "Barbecue",
+		Price:        150,
+		Order:        2,
+		IsActive:     true,
+		CreatedAt:    now,
+		UpdatedAt:    now,
 	})
 
 	// Bebidas
