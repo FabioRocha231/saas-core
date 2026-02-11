@@ -23,6 +23,9 @@ const (
 	SeedItemCheddar = "66666666-6666-6666-6666-666666666666"
 	SeedItemClassic = "77777777-7777-7777-7777-777777777777"
 	SeedItemCoke    = "88888888-8888-8888-8888-888888888888"
+
+	SeedAddonGroupCheddarAdds  = "99999999-9999-9999-9999-999999999999"
+	SeedAddonGroupCheddarSauce = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
 )
 
 func Seed(
@@ -32,6 +35,7 @@ func Seed(
 	menuRepo repository.StoreMenuRepository,
 	categoryRepo repository.MenuCategoryRepository,
 	itemRepo repository.CategoryItemRepository,
+	addonGroupRepo repository.ItemAddonGroupRepository,
 	password ports.PasswordHashInterface,
 ) {
 	if os.Getenv("APP_ENV") != "dev" {
@@ -128,16 +132,17 @@ func Seed(
 	}
 
 	if len(cats) == 0 {
-		seedCategoriesAndItems(ctx, categoryRepo, itemRepo, now, m.ID)
+		seedCategoriesItemsAndAddonGroups(ctx, categoryRepo, itemRepo, addonGroupRepo, now, m.ID)
 	}
 
 	log.Printf("seed ok: user=%s store=%s menu=%s", u.ID, s.ID, m.ID)
 }
 
-func seedCategoriesAndItems(
+func seedCategoriesItemsAndAddonGroups(
 	ctx context.Context,
 	categoryRepo repository.MenuCategoryRepository,
 	itemRepo repository.CategoryItemRepository,
+	addonGroupRepo repository.ItemAddonGroupRepository,
 	now time.Time,
 	menuID string,
 ) {
@@ -155,7 +160,8 @@ func seedCategoriesAndItems(
 		return
 	}
 
-	_ = itemRepo.Create(ctx, &entity.CategoryItem{
+	// Itens
+	cheddar := &entity.CategoryItem{
 		ID:          SeedItemCheddar,
 		CategoryID:  c1.ID,
 		Name:        "Cheddar Bacon",
@@ -165,7 +171,8 @@ func seedCategoriesAndItems(
 		IsActive:    true,
 		CreatedAt:   now,
 		UpdatedAt:   now,
-	})
+	}
+	_ = itemRepo.Create(ctx, cheddar)
 
 	_ = itemRepo.Create(ctx, &entity.CategoryItem{
 		ID:          SeedItemClassic,
@@ -177,6 +184,33 @@ func seedCategoriesAndItems(
 		IsActive:    true,
 		CreatedAt:   now,
 		UpdatedAt:   now,
+	})
+
+	// Addon Groups do Cheddar Bacon
+	_ = addonGroupRepo.Create(ctx, &entity.ItemAddonGroup{
+		ID:             SeedAddonGroupCheddarAdds,
+		CategoryItemID: cheddar.ID,
+		Name:           "Adicionais",
+		Required:       false,
+		MinSelect:      0,
+		MaxSelect:      3,
+		Order:          1,
+		IsActive:       true,
+		CreatedAt:      now,
+		UpdatedAt:      now,
+	})
+
+	_ = addonGroupRepo.Create(ctx, &entity.ItemAddonGroup{
+		ID:             SeedAddonGroupCheddarSauce,
+		CategoryItemID: cheddar.ID,
+		Name:           "Molhos",
+		Required:       false,
+		MinSelect:      0,
+		MaxSelect:      2,
+		Order:          2,
+		IsActive:       true,
+		CreatedAt:      now,
+		UpdatedAt:      now,
 	})
 
 	// Bebidas
