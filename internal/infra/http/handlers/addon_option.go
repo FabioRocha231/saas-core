@@ -88,8 +88,8 @@ func (aoh *AddonOptionHandler) GetByItemAddonGroupID(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewGetByItemAddonGroupIDUsecase(aoh.addonOptionRepo, aoh.itemAddonGroupRepo, aoh.uuid, ctx)
-	output, err := uc.Execute(usecase.GetByItemAddonGroupIDInput{
+	uc := usecase.NewListByItemAddonGroupIDUsecase(aoh.addonOptionRepo, aoh.itemAddonGroupRepo, aoh.uuid, ctx)
+	output, err := uc.Execute(usecase.ListByItemAddonGroupIDInput{
 		ItemAddonGroupID: itemAddonGroupID,
 	})
 	if err != nil {
