@@ -336,7 +336,7 @@ AddonGroup "1" --> "N" AddonOption : GroupID
 
 ---
 
-## 🌐 Rotas da API (Estado Atual)
+## 🌐 Rotas da API (Atual)
 
 ### Públicas
 
@@ -350,7 +350,7 @@ AddonGroup "1" --> "N" AddonOption : GroupID
 - `POST /store`
 - `GET /store/id/:id`
 
-#### Menus
+#### Store Menu
 
 - `POST /store/:storeId/menu`
 - `GET /store/:storeId/menus`
@@ -361,6 +361,42 @@ AddonGroup "1" --> "N" AddonOption : GroupID
 - `GET /user/:id`
 - `GET /user/email/:email`
 - `GET /user/cpf/:cpf`
+
+#### Menu Category
+
+- `POST /menu/:menuId/category`
+- `GET /menu/categories/:menuId`
+- `GET /menu/category/:id`
+
+#### Category Item
+
+- `POST /menu/category/:categoryId/item`
+- `GET /menu/category/item/:id`
+- `GET /menu/category/items/:categoryId`
+
+#### Item Addon Group
+
+- `POST /item/:categoryItemId/addon-group`
+- `GET /item/addon-group/:id`
+- `GET /item/:categoryItemId/addon-groups`
+
+#### Addon Option
+
+- `POST /addon-group/:itemAddonGroupId/addon-option`
+- `GET /addon-option/:id`
+- `GET /addon-group/:itemAddonGroupId/addon-options`
+
+#### Item Variant Group
+
+- `POST /item/:categoryItemId/variant-group`
+- `GET /item/variant-group/:id`
+- `GET /item/:categoryItemId/variant-groups`
+
+#### Variant Option
+
+- `POST /variant-group/:itemVariantGroupId/variant-option`
+- `GET /variant-option/:id`
+- `GET /variant-group/:itemVariantGroupId/variant-options`
 
 ---
 
