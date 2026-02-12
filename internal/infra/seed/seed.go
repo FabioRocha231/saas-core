@@ -34,6 +34,9 @@ const (
 
 	SeedAddonOptSauceHouse = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"
 	SeedAddonOptSauceBBQ   = "ffffffff-ffff-ffff-ffff-ffffffffffff"
+
+	// Variant Group (UUID conhecido)
+	SeedVariantGroupCheddarPoint = "12121212-1212-1212-1212-121212121212"
 )
 
 func Seed(
@@ -45,6 +48,7 @@ func Seed(
 	itemRepo repository.CategoryItemRepository,
 	addonGroupRepo repository.ItemAddonGroupRepository,
 	addonOptionRepo repository.AddonOptionRepository,
+	variantGroupRepo repository.ItemVariantGroupRepository,
 	password ports.PasswordHashInterface,
 ) {
 	if os.Getenv("APP_ENV") != "dev" {
@@ -141,7 +145,7 @@ func Seed(
 	}
 
 	if len(cats) == 0 {
-		seedCategoriesItemsGroupsAndOptions(ctx, categoryRepo, itemRepo, addonGroupRepo, addonOptionRepo, now, m.ID)
+		seedCategoriesItemsGroupsAndOptions(ctx, categoryRepo, itemRepo, addonGroupRepo, addonOptionRepo, variantGroupRepo, now, m.ID)
 	}
 
 	log.Printf("seed ok: user=%s store=%s menu=%s", u.ID, s.ID, m.ID)
@@ -153,6 +157,7 @@ func seedCategoriesItemsGroupsAndOptions(
 	itemRepo repository.CategoryItemRepository,
 	addonGroupRepo repository.ItemAddonGroupRepository,
 	addonOptionRepo repository.AddonOptionRepository,
+	variantGroupRepo repository.ItemVariantGroupRepository, // <- ADICIONADO
 	now time.Time,
 	menuID string,
 ) {
@@ -194,6 +199,20 @@ func seedCategoriesItemsGroupsAndOptions(
 		IsActive:    true,
 		CreatedAt:   now,
 		UpdatedAt:   now,
+	})
+
+	// Variant Group do Cheddar Bacon
+	_ = variantGroupRepo.Create(ctx, &entity.ItemVariantGroup{
+		ID:             SeedVariantGroupCheddarPoint,
+		CategoryItemID: cheddar.ID,
+		Name:           "Ponto da carne",
+		Required:       true,
+		MinSelect:      1,
+		MaxSelect:      1,
+		Order:          1,
+		IsActive:       true,
+		CreatedAt:      now,
+		UpdatedAt:      now,
 	})
 
 	// Addon Groups do Cheddar Bacon

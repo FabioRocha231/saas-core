@@ -8,6 +8,7 @@ import (
 	memoryaddonoption "github.com/FabioRocha231/saas-core/internal/infra/db/repository/addon_option"
 	memorycategoryitem "github.com/FabioRocha231/saas-core/internal/infra/db/repository/category_item"
 	memoryitemaddongroup "github.com/FabioRocha231/saas-core/internal/infra/db/repository/item_addon_group"
+	memoryitemvariantgroup "github.com/FabioRocha231/saas-core/internal/infra/db/repository/item_variant_group"
 	memorymenucategory "github.com/FabioRocha231/saas-core/internal/infra/db/repository/menu_category"
 	memorysession "github.com/FabioRocha231/saas-core/internal/infra/db/repository/session"
 	memorystore "github.com/FabioRocha231/saas-core/internal/infra/db/repository/store"
@@ -31,6 +32,7 @@ func RegisterRoutes(engine *gin.Engine) {
 	itemCategoryRepo := memorycategoryitem.New()
 	itemAddonGroupRepo := memoryitemaddongroup.New()
 	addonOptionRepo := memoryaddonoption.New()
+	itemVariantGroupRepo := memoryitemvariantgroup.New()
 	jwtService := pkg.NewJwtService(os.Getenv("JWT_SECRET"), 24*time.Hour, "saas-core", uuid)
 
 	seed.Seed(
@@ -42,6 +44,7 @@ func RegisterRoutes(engine *gin.Engine) {
 		itemCategoryRepo,
 		itemAddonGroupRepo,
 		addonOptionRepo,
+		itemVariantGroupRepo,
 		passwordHash,
 	)
 
@@ -53,6 +56,7 @@ func RegisterRoutes(engine *gin.Engine) {
 	categoryItemHandler := handlers.NewCategoryItemHandler(itemCategoryRepo, menuCategoryRepo, uuid)
 	itemAddonGroupHandler := handlers.NewItemAddonGroupHandler(itemAddonGroupRepo, itemCategoryRepo, uuid)
 	addonOptionHandler := handlers.NewAddonOptionHandler(addonOptionRepo, itemAddonGroupRepo, uuid)
+	itemVariantGroupHandler := handlers.NewItemVariantGroupHandler(itemVariantGroupRepo, itemCategoryRepo, uuid)
 
 	authMiddleware := middleware.NewAuthMiddleware(jwtService, sessionRepo)
 
@@ -96,4 +100,9 @@ func RegisterRoutes(engine *gin.Engine) {
 	protected.POST("/addon-group/:itemAddonGroupId/addon-option", addonOptionHandler.Create)
 	protected.GET("/addon-option/:id", addonOptionHandler.GetByID)
 	protected.GET("/addon-group/:itemAddonGroupId/addon-options", addonOptionHandler.GetByItemAddonGroupID)
+
+	// Item variant group routes
+	protected.POST("/item/:categoryItemId/variant-group", itemVariantGroupHandler.Create)
+	protected.GET("/item/variant-group/:id", itemVariantGroupHandler.GetByID)
+	protected.GET("/item/:categoryItemId/variant-groups", itemVariantGroupHandler.ListByCategoryItemID)
 }
