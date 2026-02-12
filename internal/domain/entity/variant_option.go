@@ -3,11 +3,11 @@ package entity
 import "time"
 
 type VariantOption struct {
-	ID      string
-	GroupID string
+	ID             string
+	VariantGroupID string
 
 	Name       string
-	PriceDelta int64 // soma no preço final (centavos), pode ser negativo
+	PriceDelta int64
 	IsDefault  bool
 	Order      int
 	IsActive   bool

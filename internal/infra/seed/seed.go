@@ -37,6 +37,11 @@ const (
 
 	// Variant Group (UUID conhecido)
 	SeedVariantGroupCheddarPoint = "12121212-1212-1212-1212-121212121212"
+
+	// Variant Options (UUIDs conhecidos)
+	SeedVariantOptRare   = "13131313-1313-1313-1313-131313131313"
+	SeedVariantOptMedium = "14141414-1414-1414-1414-141414141414"
+	SeedVariantOptWell   = "15151515-1515-1515-1515-151515151515"
 )
 
 func Seed(
@@ -49,6 +54,7 @@ func Seed(
 	addonGroupRepo repository.ItemAddonGroupRepository,
 	addonOptionRepo repository.AddonOptionRepository,
 	variantGroupRepo repository.ItemVariantGroupRepository,
+	variantOptionRepo repository.VariantOptionRepository, // <- ADICIONADO
 	password ports.PasswordHashInterface,
 ) {
 	if os.Getenv("APP_ENV") != "dev" {
@@ -145,7 +151,17 @@ func Seed(
 	}
 
 	if len(cats) == 0 {
-		seedCategoriesItemsGroupsAndOptions(ctx, categoryRepo, itemRepo, addonGroupRepo, addonOptionRepo, variantGroupRepo, now, m.ID)
+		seedCategoriesItemsGroupsAndOptions(
+			ctx,
+			categoryRepo,
+			itemRepo,
+			addonGroupRepo,
+			addonOptionRepo,
+			variantGroupRepo,
+			variantOptionRepo, // <- PASSADO
+			now,
+			m.ID,
+		)
 	}
 
 	log.Printf("seed ok: user=%s store=%s menu=%s", u.ID, s.ID, m.ID)
@@ -157,7 +173,8 @@ func seedCategoriesItemsGroupsAndOptions(
 	itemRepo repository.CategoryItemRepository,
 	addonGroupRepo repository.ItemAddonGroupRepository,
 	addonOptionRepo repository.AddonOptionRepository,
-	variantGroupRepo repository.ItemVariantGroupRepository, // <- ADICIONADO
+	variantGroupRepo repository.ItemVariantGroupRepository,
+	variantOptionRepo repository.VariantOptionRepository, // <- ADICIONADO
 	now time.Time,
 	menuID string,
 ) {
@@ -210,6 +227,41 @@ func seedCategoriesItemsGroupsAndOptions(
 		MinSelect:      1,
 		MaxSelect:      1,
 		Order:          1,
+		IsActive:       true,
+		CreatedAt:      now,
+		UpdatedAt:      now,
+	})
+
+	// Variant Options do grupo "Ponto da carne"
+	_ = variantOptionRepo.Create(ctx, &entity.VariantOption{
+		ID:             SeedVariantOptRare,
+		VariantGroupID: SeedVariantGroupCheddarPoint,
+		Name:           "Mal passado",
+		PriceDelta:     0,
+		IsDefault:      false,
+		Order:          1,
+		IsActive:       true,
+		CreatedAt:      now,
+		UpdatedAt:      now,
+	})
+	_ = variantOptionRepo.Create(ctx, &entity.VariantOption{
+		ID:             SeedVariantOptMedium,
+		VariantGroupID: SeedVariantGroupCheddarPoint,
+		Name:           "Ao ponto",
+		PriceDelta:     0,
+		IsDefault:      true, // default
+		Order:          2,
+		IsActive:       true,
+		CreatedAt:      now,
+		UpdatedAt:      now,
+	})
+	_ = variantOptionRepo.Create(ctx, &entity.VariantOption{
+		ID:             SeedVariantOptWell,
+		VariantGroupID: SeedVariantGroupCheddarPoint,
+		Name:           "Bem passado",
+		PriceDelta:     0,
+		IsDefault:      false,
+		Order:          3,
 		IsActive:       true,
 		CreatedAt:      now,
 		UpdatedAt:      now,

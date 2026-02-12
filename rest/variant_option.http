@@ -1,0 +1,32 @@
+# @name login
+POST http://localhost:8080/login HTTP/1.1
+content-type: application/json
+
+{
+  "email": "teste@gmail.com",
+  "password": "123456"
+}
+
+@token = {{login.response.body.data.token}}
+
+###
+POST http://localhost:8080/variant-group/12121212-1212-1212-1212-121212121212/variant-option HTTP/1.1
+content-type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Ao Ponto",
+  "price_delta": 0,
+  "is_default": true,
+  "order": 1,
+  "is_active": true
+}
+
+###
+GET http://localhost:8080/variant-option/340d1f6e-1ec9-46e3-befd-d49d5cbd4f73 HTTP/1.1
+Authorization: Bearer {{token}}
+
+
+###
+GET http://localhost:8080/variant-group/12121212-1212-1212-1212-121212121212/variant-options HTTP/1.1
+Authorization: Bearer {{token}}

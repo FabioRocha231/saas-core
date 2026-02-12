@@ -9,14 +9,14 @@ import (
 	"github.com/FabioRocha231/saas-core/internal/port/repository"
 )
 
-type GetByItemAddonGroupIDUsecase struct {
+type ListByItemAddonGroupIDUsecase struct {
 	addonOptionRepo    repository.AddonOptionRepository
 	itemAddonGroupRepo repository.ItemAddonGroupRepository
 	uuid               ports.UUIDInterface
 	context            context.Context
 }
 
-type GetByItemAddonGroupIDInput struct {
+type ListByItemAddonGroupIDInput struct {
 	ItemAddonGroupID string
 }
 
@@ -35,13 +35,13 @@ type GetByItemAddonGroupIDOutput struct {
 	AddonOptions []AddonOption `json:"addon_options"`
 }
 
-func NewGetByItemAddonGroupIDUsecase(
+func NewListByItemAddonGroupIDUsecase(
 	addonOptionRepo repository.AddonOptionRepository,
 	itemAddonGroupRepo repository.ItemAddonGroupRepository,
 	uuid ports.UUIDInterface,
 	ctx context.Context,
-) *GetByItemAddonGroupIDUsecase {
-	return &GetByItemAddonGroupIDUsecase{
+) *ListByItemAddonGroupIDUsecase {
+	return &ListByItemAddonGroupIDUsecase{
 		addonOptionRepo:    addonOptionRepo,
 		itemAddonGroupRepo: itemAddonGroupRepo,
 		uuid:               uuid,
@@ -49,13 +49,13 @@ func NewGetByItemAddonGroupIDUsecase(
 	}
 }
 
-func (uc *GetByItemAddonGroupIDUsecase) Execute(input GetByItemAddonGroupIDInput) (*GetByItemAddonGroupIDOutput, error) {
+func (uc *ListByItemAddonGroupIDUsecase) Execute(input ListByItemAddonGroupIDInput) (*GetByItemAddonGroupIDOutput, error) {
 	isValidUuid := uc.uuid.Validate(input.ItemAddonGroupID)
 	if !isValidUuid {
 		return nil, errx.New(errx.CodeInvalid, "invalid item addon group id")
 	}
 
-	addonOptions, err := uc.addonOptionRepo.ListByGroupID(uc.context, input.ItemAddonGroupID)
+	addonOptions, err := uc.addonOptionRepo.ListByAddonGroupID(uc.context, input.ItemAddonGroupID)
 	if err != nil {
 		return nil, err
 	}

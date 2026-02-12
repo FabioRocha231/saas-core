@@ -80,7 +80,7 @@ func (r *Repo) GetByID(ctx context.Context, id string) (*entity.AddonOption, err
 	return cloneAddonOption(o), nil
 }
 
-func (r *Repo) ListByGroupID(ctx context.Context, groupID string) ([]*entity.AddonOption, error) {
+func (r *Repo) ListByAddonGroupID(ctx context.Context, groupID string) ([]*entity.AddonOption, error) {
 	_ = ctx
 
 	if groupID == "" {
