@@ -11,15 +11,15 @@ import (
 )
 
 type Repo struct {
-	mu     sync.RWMutex
-	byID   map[string]*entity.ItemVariantGroup
-	byItem map[string][]string // itemID -> []groupID
+	mu             sync.RWMutex
+	byID           map[string]*entity.ItemVariantGroup
+	ByCategoryItem map[string][]string // itemID -> []groupID
 }
 
 func New() repository.ItemVariantGroupRepository {
 	return &Repo{
-		byID:   make(map[string]*entity.ItemVariantGroup),
-		byItem: make(map[string][]string),
+		byID:           make(map[string]*entity.ItemVariantGroup),
+		ByCategoryItem: make(map[string][]string),
 	}
 }
 
@@ -32,8 +32,8 @@ func (r *Repo) Create(ctx context.Context, g *entity.ItemVariantGroup) error {
 	if g.ID == "" {
 		return errx.New(errx.CodeInvalid, "missing id")
 	}
-	if g.ItemID == "" {
-		return errx.New(errx.CodeInvalid, "missing itemId")
+	if g.CategoryItemID == "" {
+		return errx.New(errx.CodeInvalid, "missing category item ID")
 	}
 	if g.Name == "" {
 		return errx.New(errx.CodeInvalid, "missing name")
@@ -58,7 +58,7 @@ func (r *Repo) Create(ctx context.Context, g *entity.ItemVariantGroup) error {
 
 	cp := cloneVariantGroup(g)
 	r.byID[cp.ID] = cp
-	r.byItem[cp.ItemID] = append(r.byItem[cp.ItemID], cp.ID)
+	r.ByCategoryItem[cp.CategoryItemID] = append(r.ByCategoryItem[cp.CategoryItemID], cp.ID)
 
 	return nil
 }
@@ -80,15 +80,15 @@ func (r *Repo) GetByID(ctx context.Context, id string) (*entity.ItemVariantGroup
 	return cloneVariantGroup(g), nil
 }
 
-func (r *Repo) ListByItemID(ctx context.Context, itemID string) ([]*entity.ItemVariantGroup, error) {
+func (r *Repo) ListByCategoryItemID(ctx context.Context, itemID string) ([]*entity.ItemVariantGroup, error) {
 	_ = ctx
 
 	if itemID == "" {
-		return nil, errx.New(errx.CodeInvalid, "missing itemId")
+		return nil, errx.New(errx.CodeInvalid, "missing category item ID")
 	}
 
 	r.mu.RLock()
-	ids := r.byItem[itemID]
+	ids := r.ByCategoryItem[itemID]
 	out := make([]*entity.ItemVariantGroup, 0, len(ids))
 	for _, id := range ids {
 		if g := r.byID[id]; g != nil {

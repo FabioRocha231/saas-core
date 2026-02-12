@@ -3,8 +3,8 @@ package entity
 import "time"
 
 type ItemVariantGroup struct {
-	ID     string
-	ItemID string
+	ID             string
+	CategoryItemID string
 
 	Name      string
 	Required  bool

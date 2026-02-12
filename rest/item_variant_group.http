@@ -1,0 +1,32 @@
+# @name login
+POST http://localhost:8080/login HTTP/1.1
+content-type: application/json
+
+{
+  "email": "teste@gmail.com",
+  "password": "123456"
+}
+
+@token = {{login.response.body.data.token}}
+
+###
+POST http://localhost:8080/item/66666666-6666-6666-6666-666666666666/variant-group HTTP/1.1
+content-type: application/json
+authorization: Bearer {{token}}
+
+{
+  "name": "Tamanhos",
+  "required": true,
+  "min_select": 1,
+  "max_select": 1,
+  "order": 1,
+  "is_active": true
+}
+
+###
+GET http://localhost:8080/item/variant-group/12121212-1212-1212-1212-121212121212 HTTP/1.1
+authorization: Bearer {{token}}
+
+###
+GET http://localhost:8080/item/66666666-6666-6666-6666-666666666666/variant-groups HTTP/1.1
+authorization: Bearer {{token}}
