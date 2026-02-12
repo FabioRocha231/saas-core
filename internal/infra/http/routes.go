@@ -14,6 +14,7 @@ import (
 	memorystore "github.com/FabioRocha231/saas-core/internal/infra/db/repository/store"
 	memorystoremenu "github.com/FabioRocha231/saas-core/internal/infra/db/repository/store_menu"
 	memoryuser "github.com/FabioRocha231/saas-core/internal/infra/db/repository/user"
+	memoryvariantoption "github.com/FabioRocha231/saas-core/internal/infra/db/repository/variant_option"
 	"github.com/FabioRocha231/saas-core/internal/infra/http/handlers"
 	"github.com/FabioRocha231/saas-core/internal/infra/http/middleware"
 	"github.com/FabioRocha231/saas-core/internal/infra/seed"
@@ -33,6 +34,7 @@ func RegisterRoutes(engine *gin.Engine) {
 	itemAddonGroupRepo := memoryitemaddongroup.New()
 	addonOptionRepo := memoryaddonoption.New()
 	itemVariantGroupRepo := memoryitemvariantgroup.New()
+	variantOptionRepo := memoryvariantoption.New()
 	jwtService := pkg.NewJwtService(os.Getenv("JWT_SECRET"), 24*time.Hour, "saas-core", uuid)
 
 	seed.Seed(
@@ -45,6 +47,7 @@ func RegisterRoutes(engine *gin.Engine) {
 		itemAddonGroupRepo,
 		addonOptionRepo,
 		itemVariantGroupRepo,
+		variantOptionRepo,
 		passwordHash,
 	)
 
@@ -57,6 +60,7 @@ func RegisterRoutes(engine *gin.Engine) {
 	itemAddonGroupHandler := handlers.NewItemAddonGroupHandler(itemAddonGroupRepo, itemCategoryRepo, uuid)
 	addonOptionHandler := handlers.NewAddonOptionHandler(addonOptionRepo, itemAddonGroupRepo, uuid)
 	itemVariantGroupHandler := handlers.NewItemVariantGroupHandler(itemVariantGroupRepo, itemCategoryRepo, uuid)
+	variantOptionHandler := handlers.NewVariantOptionHandler(variantOptionRepo, itemVariantGroupRepo, uuid)
 
 	authMiddleware := middleware.NewAuthMiddleware(jwtService, sessionRepo)
 
@@ -105,4 +109,9 @@ func RegisterRoutes(engine *gin.Engine) {
 	protected.POST("/item/:categoryItemId/variant-group", itemVariantGroupHandler.Create)
 	protected.GET("/item/variant-group/:id", itemVariantGroupHandler.GetByID)
 	protected.GET("/item/:categoryItemId/variant-groups", itemVariantGroupHandler.ListByCategoryItemID)
+
+	// Variant option routes
+	protected.POST("/variant-group/:itemVariantGroupId/variant-option", variantOptionHandler.Create)
+	protected.GET("/variant-option/:id", variantOptionHandler.GetByID)
+	protected.GET("/variant-group/:itemVariantGroupId/variant-options", variantOptionHandler.ListByItemVariantGroupID)
 }

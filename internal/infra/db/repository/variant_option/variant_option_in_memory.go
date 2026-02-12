@@ -32,7 +32,7 @@ func (r *Repo) Create(ctx context.Context, o *entity.VariantOption) error {
 	if o.ID == "" {
 		return errx.New(errx.CodeInvalid, "missing id")
 	}
-	if o.GroupID == "" {
+	if o.VariantGroupID == "" {
 		return errx.New(errx.CodeInvalid, "missing groupId")
 	}
 	if o.Name == "" {
@@ -55,7 +55,7 @@ func (r *Repo) Create(ctx context.Context, o *entity.VariantOption) error {
 
 	cp := cloneVariantOption(o)
 	r.byID[cp.ID] = cp
-	r.byGroup[cp.GroupID] = append(r.byGroup[cp.GroupID], cp.ID)
+	r.byGroup[cp.VariantGroupID] = append(r.byGroup[cp.VariantGroupID], cp.ID)
 
 	return nil
 }
@@ -77,7 +77,7 @@ func (r *Repo) GetByID(ctx context.Context, id string) (*entity.VariantOption, e
 	return cloneVariantOption(o), nil
 }
 
-func (r *Repo) ListByGroupID(ctx context.Context, groupID string) ([]*entity.VariantOption, error) {
+func (r *Repo) ListByVariantGroupID(ctx context.Context, groupID string) ([]*entity.VariantOption, error) {
 	_ = ctx
 
 	if groupID == "" {
