@@ -10,6 +10,8 @@ import (
 	memoryitemaddongroup "github.com/FabioRocha231/saas-core/internal/infra/db/repository/item_addon_group"
 	memoryitemvariantgroup "github.com/FabioRocha231/saas-core/internal/infra/db/repository/item_variant_group"
 	memorymenucategory "github.com/FabioRocha231/saas-core/internal/infra/db/repository/menu_category"
+	memorymenuread "github.com/FabioRocha231/saas-core/internal/infra/db/repository/menu_read"
+	memoryorder "github.com/FabioRocha231/saas-core/internal/infra/db/repository/order"
 	memorysession "github.com/FabioRocha231/saas-core/internal/infra/db/repository/session"
 	memorystore "github.com/FabioRocha231/saas-core/internal/infra/db/repository/store"
 	memorystoremenu "github.com/FabioRocha231/saas-core/internal/infra/db/repository/store_menu"
@@ -35,6 +37,14 @@ func RegisterRoutes(engine *gin.Engine) {
 	addonOptionRepo := memoryaddonoption.New()
 	itemVariantGroupRepo := memoryitemvariantgroup.New()
 	variantOptionRepo := memoryvariantoption.New()
+	orderRepo := memoryorder.New()
+	menuReadRepo := memorymenuread.New(
+		itemCategoryRepo,
+		itemAddonGroupRepo,
+		addonOptionRepo,
+		itemVariantGroupRepo,
+		variantOptionRepo,
+	)
 	jwtService := pkg.NewJwtService(os.Getenv("JWT_SECRET"), 24*time.Hour, "saas-core", uuid)
 
 	seed.Seed(
@@ -61,6 +71,7 @@ func RegisterRoutes(engine *gin.Engine) {
 	addonOptionHandler := handlers.NewAddonOptionHandler(addonOptionRepo, itemAddonGroupRepo, uuid)
 	itemVariantGroupHandler := handlers.NewItemVariantGroupHandler(itemVariantGroupRepo, itemCategoryRepo, uuid)
 	variantOptionHandler := handlers.NewVariantOptionHandler(variantOptionRepo, itemVariantGroupRepo, uuid)
+	orderHandler := handlers.NewOrderHandler(orderRepo, menuReadRepo, uuid)
 
 	authMiddleware := middleware.NewAuthMiddleware(jwtService, sessionRepo)
 
@@ -114,4 +125,12 @@ func RegisterRoutes(engine *gin.Engine) {
 	protected.POST("/variant-group/:itemVariantGroupId/variant-option", variantOptionHandler.Create)
 	protected.GET("/variant-option/:id", variantOptionHandler.GetByID)
 	protected.GET("/variant-group/:itemVariantGroupId/variant-options", variantOptionHandler.ListByItemVariantGroupID)
+
+	// order routes
+	protected.POST("/store/:storeId/order", orderHandler.Create)
+	protected.POST("/order/:orderId/item", orderHandler.AddItem)
+	protected.GET("/order/:orderId", orderHandler.GetByID)
+	protected.PATCH("/order/:orderId/item/:itemId", orderHandler.UpdateItemQty)
+	protected.DELETE("/order/:orderId/item/:itemId", orderHandler.RemoveItem)
+	protected.PATCH("/order/:orderId/place", orderHandler.PlaceOrder)
 }

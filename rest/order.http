@@ -1,0 +1,62 @@
+# @name login
+POST http://localhost:8080/login HTTP/1.1
+content-type: application/json
+
+{
+  "email": "teste@gmail.com",
+  "password": "123456"
+}
+
+@token = {{login.response.body.data.token}}
+
+### criar pedido
+### http://localhost:8080/store/{{storeId}}/order
+POST http://localhost:8080/store/22222222-2222-2222-2222-222222222222/order HTTP/1.1
+content-type: application/json
+Authorization: Bearer {{token}}
+
+### Adicionar item ao pedido
+### http://localhost:8080/order/{{orderId}}/item
+POST http://localhost:8080/order/7a9a8790-ebd1-43a9-9315-9b4053045d11/item HTTP/1.1
+Authorization: Bearer {{token}}
+content-type: application/json
+
+{
+  "item_id": "66666666-6666-6666-6666-666666666666",
+  "qty": 2,
+  "variant_option_ids": [
+    "13131313-1313-1313-1313-131313131313"
+  ],
+  "addons": [
+    { "option_id": "dddddddd-dddd-dddd-dddd-dddddddddddd", "qty": 2 }
+  ],
+  "note": "sem cebola"
+}
+
+### Listar pedido
+### http://localhost:8080/order/{{orderId}}
+GET http://localhost:8080/order/d2943433-6f86-4105-a40f-c490f79bfaa0 HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Atualizar qty de uma linha do carrinho
+### http://localhost:8080/order/{{orderId}}/item/{{orderItemId}}
+PATCH http://localhost:8080/order/d2943433-6f86-4105-a40f-c490f79bfaa0/item/0be5f757-aa46-45e4-98f1-a1c367775a5f HTTP/1.1
+Authorization: Bearer {{token}}
+content-type: application/json
+
+{
+  "qty": 3
+}
+
+### Remover uma linha do carrinho
+### http://localhost:8080/order/{{orderId}}/item/{{orderItemId}}
+DELETE http://localhost:8080/order/d2943433-6f86-4105-a40f-c490f79bfaa0/item/fe5bf629-adfa-484c-8b48-c379b1345dc2 HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Fechar pedido (place)
+### http://localhost:8080/order/{{orderId}}/place
+PATCH http://localhost:8080/order/7a9a8790-ebd1-43a9-9315-9b4053045d11/place HTTP/1.1
+Authorization: Bearer {{token}}
+content-type: application/json
+
+{}
