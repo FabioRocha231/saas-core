@@ -79,12 +79,6 @@ func (h *OrderHandler) Create(ctx *gin.Context) {
 }
 
 func (h *OrderHandler) AddItem(ctx *gin.Context) {
-	_, err := helper.GetUserIDFromContext(ctx) // só pra garantir auth (owner check pode vir depois)
-	if err != nil {
-		RespondErr(ctx, err)
-		return
-	}
-
 	orderID := strings.TrimSpace(ctx.Param("orderId"))
 	if orderID == "" {
 		RespondErr(ctx, errx.New(errx.CodeInvalid, "missing orderId"))
