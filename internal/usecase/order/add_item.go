@@ -50,6 +50,15 @@ func (uc *AddItem) Execute(ctx context.Context, in AddItemInput) (*Order, error)
 	if in.ItemID == "" {
 		return nil, errx.New(errx.CodeInvalid, "missing itemId")
 	}
+
+	if isValidUUID := uc.UUID.Validate(in.ItemID); !isValidUUID {
+		return nil, errx.New(errx.CodeInvalid, "invalid item id")
+	}
+
+	if isValidUUID := uc.UUID.Validate(in.OrderID); !isValidUUID {
+		return nil, errx.New(errx.CodeInvalid, "invalid order id")
+	}
+
 	if in.Qty <= 0 {
 		return nil, errx.New(errx.CodeInvalid, "qty must be > 0")
 	}

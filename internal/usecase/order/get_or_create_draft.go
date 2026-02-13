@@ -82,12 +82,12 @@ type GetOrCreateDraftUsecase struct {
 
 func NewGetOrCreateDraftUsecase(
 	orders repository.OrderRepository,
-	ids ports.UUIDInterface,
+	uuid ports.UUIDInterface,
 	ctx context.Context,
 ) *GetOrCreateDraftUsecase {
 	return &GetOrCreateDraftUsecase{
 		ordersRepo: orders,
-		uuid:       ids,
+		uuid:       uuid,
 		context:    ctx,
 	}
 }
@@ -98,6 +98,14 @@ func (uc *GetOrCreateDraftUsecase) Execute(in GetOrCreateDraftInput) (*GetOrCrea
 	}
 	if in.StoreID == "" {
 		return nil, errx.New(errx.CodeInvalid, "missing storeId")
+	}
+
+	if isValidUUID := uc.uuid.Validate(in.UserID); !isValidUUID {
+		return nil, errx.New(errx.CodeInvalid, "invalid user id")
+	}
+
+	if isValidUUID := uc.uuid.Validate(in.StoreID); !isValidUUID {
+		return nil, errx.New(errx.CodeInvalid, "invalid store id")
 	}
 
 	// 1) tenta pegar draft ativo

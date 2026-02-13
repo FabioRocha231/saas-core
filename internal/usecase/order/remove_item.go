@@ -21,8 +21,8 @@ type RemoveItemUsecase struct {
 	UUID      ports.UUIDInterface
 }
 
-func NewRemoveItemUsecase(orders repository.OrderRepository, uuid ports.UUIDInterface) *RemoveItemUsecase {
-	return &RemoveItemUsecase{OrderRepo: orders, UUID: uuid}
+func NewRemoveItemUsecase(orderRepo repository.OrderRepository, uuid ports.UUIDInterface) *RemoveItemUsecase {
+	return &RemoveItemUsecase{OrderRepo: orderRepo, UUID: uuid}
 }
 
 func (uc *RemoveItemUsecase) Execute(ctx context.Context, in RemoveItemInput) (*Order, error) {
@@ -34,6 +34,18 @@ func (uc *RemoveItemUsecase) Execute(ctx context.Context, in RemoveItemInput) (*
 	}
 	if in.ItemID == "" {
 		return nil, errx.New(errx.CodeInvalid, "missing itemId")
+	}
+
+	if isValidUUID := uc.UUID.Validate(in.ItemID); !isValidUUID {
+		return nil, errx.New(errx.CodeInvalid, "invalid item id")
+	}
+
+	if isValidUUID := uc.UUID.Validate(in.OrderID); !isValidUUID {
+		return nil, errx.New(errx.CodeInvalid, "invalid order id")
+	}
+
+	if isValidUUID := uc.UUID.Validate(in.UserID); !isValidUUID {
+		return nil, errx.New(errx.CodeInvalid, "invalid user id")
 	}
 
 	o, err := uc.OrderRepo.GetByID(ctx, in.OrderID)
