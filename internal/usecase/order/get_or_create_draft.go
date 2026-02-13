@@ -101,7 +101,7 @@ func (uc *GetOrCreateDraftUsecase) Execute(in GetOrCreateDraftInput) (*GetOrCrea
 	}
 
 	// 1) tenta pegar draft ativo
-	o, err := uc.ordersRepo.GetActiveDraftByUserStore(uc.context, in.UserID, in.StoreID)
+	o, err := uc.ordersRepo.GetActiveDraftByUserIDAndStoreID(uc.context, in.UserID, in.StoreID)
 	if err == nil && o != nil {
 		return &GetOrCreateDraftOutput{Order: toOrderDTO(o), Created: false}, nil
 	}
@@ -130,7 +130,7 @@ func (uc *GetOrCreateDraftUsecase) Execute(in GetOrCreateDraftInput) (*GetOrCrea
 	if err := uc.ordersRepo.Create(uc.context, newOrder); err != nil {
 		// Race condition: dois requests tentando criar ao mesmo tempo
 		if errx.Is(err, errx.CodeConflict) {
-			existing, e2 := uc.ordersRepo.GetActiveDraftByUserStore(uc.context, in.UserID, in.StoreID)
+			existing, e2 := uc.ordersRepo.GetActiveDraftByUserIDAndStoreID(uc.context, in.UserID, in.StoreID)
 			if e2 == nil && existing != nil {
 				return &GetOrCreateDraftOutput{Order: toOrderDTO(existing), Created: true}, nil
 			}

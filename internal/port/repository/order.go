@@ -12,5 +12,5 @@ type OrderRepository interface {
 	GetByID(ctx context.Context, id string) (*entity.Order, error)
 
 	// carrinho único
-	GetActiveDraftByUserStore(ctx context.Context, userID, storeID string) (*entity.Order, error)
+	GetActiveDraftByUserIDAndStoreID(ctx context.Context, userID, storeID string) (*entity.Order, error)
 }

@@ -21,13 +21,13 @@ type Repo struct {
 	byID map[string]*entity.Order
 
 	// (userID, storeID) -> orderID (somente para Status=CREATED)
-	activeDraftByUserStore map[userStoreKey]string
+	activeDraftByUserIDAndStoreID map[userStoreKey]string
 }
 
 func New() repository.OrderRepository {
 	return &Repo{
-		byID:                   make(map[string]*entity.Order),
-		activeDraftByUserStore: make(map[userStoreKey]string),
+		byID:                          make(map[string]*entity.Order),
+		activeDraftByUserIDAndStoreID: make(map[userStoreKey]string),
 	}
 }
 
@@ -62,10 +62,10 @@ func (r *Repo) Create(ctx context.Context, o *entity.Order) error {
 	// carrinho único: não pode existir outro draft ativo
 	if o.Status == entity.OrderCreated {
 		key := userStoreKey{UserID: o.UserID, StoreID: o.StoreID}
-		if existingID := r.activeDraftByUserStore[key]; existingID != "" {
+		if existingID := r.activeDraftByUserIDAndStoreID[key]; existingID != "" {
 			return errx.New(errx.CodeConflict, "active draft already exists")
 		}
-		r.activeDraftByUserStore[key] = o.ID
+		r.activeDraftByUserIDAndStoreID[key] = o.ID
 	}
 
 	if o.CreatedAt.IsZero() {
@@ -111,17 +111,17 @@ func (r *Repo) Update(ctx context.Context, o *entity.Order) error {
 
 	// se estava CREATED e saiu de CREATED, libera o draft ativo
 	if prevStatus == entity.OrderCreated && nextStatus != entity.OrderCreated {
-		if id := r.activeDraftByUserStore[key]; id == o.ID {
-			delete(r.activeDraftByUserStore, key)
+		if id := r.activeDraftByUserIDAndStoreID[key]; id == o.ID {
+			delete(r.activeDraftByUserIDAndStoreID, key)
 		}
 	}
 
 	// se não era CREATED e virou CREATED, protege contra violação do carrinho único
 	if prevStatus != entity.OrderCreated && nextStatus == entity.OrderCreated {
-		if existingID := r.activeDraftByUserStore[key]; existingID != "" && existingID != o.ID {
+		if existingID := r.activeDraftByUserIDAndStoreID[key]; existingID != "" && existingID != o.ID {
 			return errx.New(errx.CodeConflict, "active draft already exists")
 		}
-		r.activeDraftByUserStore[key] = o.ID
+		r.activeDraftByUserIDAndStoreID[key] = o.ID
 	}
 
 	o.UpdatedAt = now
@@ -153,7 +153,7 @@ func (r *Repo) GetByID(ctx context.Context, id string) (*entity.Order, error) {
 	return cloneOrder(o), nil
 }
 
-func (r *Repo) GetActiveDraftByUserStore(ctx context.Context, userID, storeID string) (*entity.Order, error) {
+func (r *Repo) GetActiveDraftByUserIDAndStoreID(ctx context.Context, userID, storeID string) (*entity.Order, error) {
 	_ = ctx
 
 	if userID == "" {
@@ -166,7 +166,7 @@ func (r *Repo) GetActiveDraftByUserStore(ctx context.Context, userID, storeID st
 	key := userStoreKey{UserID: userID, StoreID: storeID}
 
 	r.mu.RLock()
-	id := r.activeDraftByUserStore[key]
+	id := r.activeDraftByUserIDAndStoreID[key]
 	if id == "" {
 		r.mu.RUnlock()
 		return nil, errx.New(errx.CodeNotFound, "active draft not found")
