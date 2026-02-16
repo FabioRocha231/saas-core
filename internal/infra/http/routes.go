@@ -12,6 +12,7 @@ import (
 	memorymenucategory "github.com/FabioRocha231/saas-core/internal/infra/db/repository/menu_category"
 	memorymenuread "github.com/FabioRocha231/saas-core/internal/infra/db/repository/menu_read"
 	memoryorder "github.com/FabioRocha231/saas-core/internal/infra/db/repository/order"
+	memorypayment "github.com/FabioRocha231/saas-core/internal/infra/db/repository/payment"
 	memorysession "github.com/FabioRocha231/saas-core/internal/infra/db/repository/session"
 	memorystore "github.com/FabioRocha231/saas-core/internal/infra/db/repository/store"
 	memorystoremenu "github.com/FabioRocha231/saas-core/internal/infra/db/repository/store_menu"
@@ -38,6 +39,7 @@ func RegisterRoutes(engine *gin.Engine) {
 	itemVariantGroupRepo := memoryitemvariantgroup.New()
 	variantOptionRepo := memoryvariantoption.New()
 	orderRepo := memoryorder.New()
+	paymentRepo := memorypayment.New()
 	menuReadRepo := memorymenuread.New(
 		itemCategoryRepo,
 		itemAddonGroupRepo,
@@ -45,7 +47,6 @@ func RegisterRoutes(engine *gin.Engine) {
 		itemVariantGroupRepo,
 		variantOptionRepo,
 	)
-	jwtService := pkg.NewJwtService(os.Getenv("JWT_SECRET"), 24*time.Hour, "saas-core", uuid)
 
 	seed.Seed(
 		context.Background(),
@@ -61,6 +62,8 @@ func RegisterRoutes(engine *gin.Engine) {
 		passwordHash,
 	)
 
+	jwtService := pkg.NewJwtService(os.Getenv("JWT_SECRET"), 24*time.Hour, "saas-core", uuid)
+
 	storeHandler := handlers.NewStoreHandler(storeRepo, uuid)
 	userHandler := handlers.NewUserHandler(userRepo, storeRepo, uuid, passwordHash)
 	authHandler := handlers.NewAuthHandler(passwordHash, jwtService, userRepo, sessionRepo, storeRepo)
@@ -72,6 +75,7 @@ func RegisterRoutes(engine *gin.Engine) {
 	itemVariantGroupHandler := handlers.NewItemVariantGroupHandler(itemVariantGroupRepo, itemCategoryRepo, uuid)
 	variantOptionHandler := handlers.NewVariantOptionHandler(variantOptionRepo, itemVariantGroupRepo, uuid)
 	orderHandler := handlers.NewOrderHandler(orderRepo, menuReadRepo, uuid)
+	paymentHandler := handlers.NewPaymentHandler(orderRepo, paymentRepo, uuid)
 
 	authMiddleware := middleware.NewAuthMiddleware(jwtService, sessionRepo)
 
@@ -133,4 +137,10 @@ func RegisterRoutes(engine *gin.Engine) {
 	protected.PATCH("/order/:orderId/item/:itemId", orderHandler.UpdateItemQty)
 	protected.DELETE("/order/:orderId/item/:itemId", orderHandler.RemoveItem)
 	protected.PATCH("/order/:orderId/place", orderHandler.PlaceOrder)
+
+	//payment routes
+	protected.POST("/order/:orderId/payments", paymentHandler.CreateForOrder)
+	protected.GET("/payments/:paymentId", paymentHandler.GetByID)
+	protected.POST("/payments/:paymentId/confirm", paymentHandler.Confirm)
+	protected.POST("/payments/:paymentId/fail", paymentHandler.Fail)
 }

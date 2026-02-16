@@ -1,0 +1,51 @@
+# @name login
+POST http://localhost:8080/login HTTP/1.1
+content-type: application/json
+
+{
+  "email": "teste@gmail.com",
+  "password": "123456"
+}
+
+@token = {{login.response.body.data.token}}
+
+### Criar pagamento (MOCK) para o pedido PLACED
+# @name createPayment
+POST http://localhost:8080/order/2df94118-8d1c-45fa-b952-2224121e0c2f/payments HTTP/1.1
+Authorization: Bearer {{token}}
+content-type: application/json
+
+{
+  "method": "MOCK",
+  "idempotency_key": "pay-1"
+}
+
+@paymentId = {{createPayment.response.body.data.payment.id}}
+
+### Consultar pagamento
+# @name getPayment
+GET http://localhost:8080/payments/{{paymentId}} HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Confirmar pagamento (simular "PAID")
+# @name confirmPayment
+POST http://localhost:8080/payments/{{paymentId}}/confirm HTTP/1.1
+Authorization: Bearer {{token}}
+content-type: application/json
+
+{}
+
+### Buscar pedido novamente (deve estar PAID após confirmar)
+# @name getOrderAfterPaid
+GET http://localhost:8080/order/2df94118-8d1c-45fa-b952-2224121e0c2f HTTP/1.1
+Authorization: Bearer {{token}}
+
+### Falhar pagamento (simular "FAILED") - use em outro payment pendente
+# @name failPayment
+POST http://localhost:8080/payments/{{paymentId}}/fail HTTP/1.1
+Authorization: Bearer {{token}}
+content-type: application/json
+
+{
+  "reason": "simulated failure"
+}
