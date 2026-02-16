@@ -398,6 +398,24 @@ AddonGroup "1" --> "N" AddonOption : GroupID
 - `GET /variant-option/:id`
 - `GET /variant-group/:itemVariantGroupId/variant-options`
 
+#### Order / Cart (Carrinho & Pedido)
+
+- `POST /store/:storeId/order` → cria ou retorna o carrinho (draft) **único** (status `CREATED`)
+- `POST /order/:orderId/item` → adiciona item ao pedido (com **merge automático** se mesma combinação)
+- `GET /order/:orderId` → retorna o pedido/carrinho atual (itens + totals)
+- `PATCH /order/:orderId/item/:itemId` → atualiza quantidade de um item do pedido (**itemId = OrderItem.ID**)
+- `DELETE /order/:orderId/item/:itemId` → remove item do pedido (**itemId = OrderItem.ID**)
+- `PATCH /order/:orderId/place` → fecha o pedido (status `PLACED`) e libera o carrinho único para criar outro
+
+#### Payments (Mock)
+
+> Pagamento simulado para desenvolvimento. Valor é sempre calculado no backend usando `order.Total`.
+
+- `POST /order/:orderId/payments` → cria tentativa de pagamento (mock) para um pedido `PLACED`
+- `GET /payments/:paymentId` → consulta status do pagamento
+- `POST /payments/:paymentId/confirm` → simula pagamento confirmado (status `PAID`) e marca pedido como `PAID`
+- `POST /payments/:paymentId/fail` → simula falha no pagamento (status `FAILED`)
+
 ---
 
 ## 🗄️ Persistência (Atual)
@@ -426,18 +444,46 @@ AddonGroup "1" --> "N" AddonOption : GroupID
 
 ## 🛣️ Próximos Passos Planejados
 
+### ✅ Já Implementado (MVP até aqui)
+
 - Categorias do menu
 - Itens do menu
 - Variações de itens
 - Adicionais
-- `GET MenuFull` (JSON completo para o app)
-- Pedido / Checkout
-- Estoque
-- Pagamentos
-- Migração para CassandraDB
-- Observabilidade (logs e métricas)
+- Pedido / Carrinho (draft único por user+store)
+- Edição de carrinho (GET, update qty, remove item)
+- Place order (status `PLACED`)
+- Pagamento (MOCK) com confirmação/falha e transição do pedido para `PAID`
 
----
+### 🔜 Próximos passos (prioridade)
+
+1) **GET MenuFull (essencial pro front)**
+   - Endpoint que retorna `menu -> categorias -> itens -> variantGroups/options -> addonGroups/options`
+
+2) **Checkout & Entrega (dados de entrega e cálculo de taxas)**
+   - endereço / retirada / observações
+   - taxas de entrega/serviço (backend calcula)
+   - regras por loja (mínimo, raio, horários)
+
+3) **Persistência real**
+   - migrar de repos in-memory para banco (ex: Postgres primeiro; Cassandra depois se fizer sentido)
+   - manter contratos (ports) para troca sem refatoração grande
+
+4) **Pagamentos reais (provider)**
+   - integrar Mercado Pago / Asaas
+   - webhook assinado
+   - idempotência e retry
+   - reconciliação de status (pedido x pagamento)
+
+5) **Pedidos da loja (painel do lojista)**
+   - listar pedidos por store
+   - status de preparo/entrega
+   - cancelamento e reembolso (futuro)
+
+6) **Observabilidade**
+   - logs estruturados
+   - tracing básico
+   - métricas (latência, erros por rota, conversão de checkout)
 
 ## 🧑‍💻 Status do Projeto
 
