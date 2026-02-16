@@ -17,7 +17,7 @@ Authorization: Bearer {{token}}
 
 ### Adicionar item ao pedido
 ### http://localhost:8080/order/{{orderId}}/item
-POST http://localhost:8080/order/7a9a8790-ebd1-43a9-9315-9b4053045d11/item HTTP/1.1
+POST http://localhost:8080/order/2df94118-8d1c-45fa-b952-2224121e0c2f/item HTTP/1.1
 Authorization: Bearer {{token}}
 content-type: application/json
 
@@ -55,7 +55,7 @@ Authorization: Bearer {{token}}
 
 ### Fechar pedido (place)
 ### http://localhost:8080/order/{{orderId}}/place
-PATCH http://localhost:8080/order/7a9a8790-ebd1-43a9-9315-9b4053045d11/place HTTP/1.1
+PATCH http://localhost:8080/order/2df94118-8d1c-45fa-b952-2224121e0c2f/place HTTP/1.1
 Authorization: Bearer {{token}}
 content-type: application/json
 

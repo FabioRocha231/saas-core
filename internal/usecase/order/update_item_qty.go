@@ -30,6 +30,7 @@ func (uc *UpdateItemQtyUsecase) Execute(ctx context.Context, in UpdateItemQtyInp
 	if in.OrderID == "" {
 		return nil, errx.New(errx.CodeInvalid, "missing orderId")
 	}
+
 	if in.UserID == "" {
 		return nil, errx.New(errx.CodeUnauthorized, "missing user")
 	}
