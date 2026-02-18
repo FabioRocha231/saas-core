@@ -144,9 +144,9 @@ func (h *UserHandler) GetByCpf(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewGetUserByCpfUsecase(h.userRepo, h.uuid, ctx)
+	uc := usecase.NewGetUserByCpfUsecase(h.userRepo, h.uuid)
 
-	output, err := uc.Execute(usecase.GetUserByCpfInput{Cpf: cpf})
+	output, err := uc.Execute(ctx, usecase.GetUserByCpfInput{Cpf: cpf})
 
 	if err != nil {
 		RespondErr(ctx, err)
