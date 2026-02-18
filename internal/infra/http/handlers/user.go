@@ -81,16 +81,16 @@ func (h *UserHandler) Create(ctx *gin.Context) {
 	}
 
 	createUserInput := usecase.CreateUserInput{
-		Name:     req.Name,
-		Email:    req.Email,
-		Cpf:      req.Cpf,
-		Password: req.Password,
-		Phone:    req.Phone,
-		UserType: req.UserType,
+		Name:     strings.TrimSpace(req.Name),
+		Email:    strings.TrimSpace(req.Email),
+		Cpf:      strings.TrimSpace(req.Cpf),
+		Password: strings.TrimSpace(req.Password),
+		Phone:    strings.TrimSpace(req.Phone),
+		UserType: strings.TrimSpace(req.UserType),
 	}
 
-	uc := usecase.NewCreateUserUsecase(h.userRepo, h.storeRepo, ctx, h.uuid, h.passwordHash)
-	usecaseOutput, err := uc.Execute(createUserInput)
+	uc := usecase.NewCreateUserUsecase(h.userRepo, h.storeRepo, h.uuid, h.passwordHash)
+	usecaseOutput, err := uc.Execute(ctx, createUserInput)
 	if err != nil {
 		RespondErr(ctx, err)
 		return
