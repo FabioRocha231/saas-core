@@ -7,15 +7,17 @@ import (
 
 	"github.com/FabioRocha231/saas-core/internal/domain/entity"
 	memoryuser "github.com/FabioRocha231/saas-core/internal/infra/db/repository/user"
+	ports "github.com/FabioRocha231/saas-core/internal/port"
+	"github.com/FabioRocha231/saas-core/internal/port/repository"
 	"github.com/FabioRocha231/saas-core/pkg"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetUserByCpf(t *testing.T) {
-	userRepo := memoryuser.New()
-	uuid := pkg.NewUUID()
-	userID := uuid.Generate()
-	createUserErr := userRepo.Create(context.Background(), &entity.User{
+func BootstrapUser() (userRepo repository.UserRepository, uuid ports.UUIDInterface, userID string, mockUserErr error) {
+	userRepo = memoryuser.New()
+	uuid = pkg.NewUUID()
+	userID = uuid.Generate()
+	mockUserErr = userRepo.Create(context.Background(), &entity.User{
 		ID:              userID,
 		Name:            "usuario teste",
 		Email:           "j0Btq@example.com",
@@ -31,7 +33,13 @@ func TestGetUserByCpf(t *testing.T) {
 		UpdatedAt:       time.Now(),
 	})
 
-	assert.NoError(t, createUserErr)
+	return userRepo, uuid, userID, mockUserErr
+}
+
+func TestGetUserByCpf(t *testing.T) {
+	userRepo, uuid, userID, mockUserErr := BootstrapUser()
+
+	assert.NoError(t, mockUserErr)
 
 	uc := NewGetUserByCpfUsecase(userRepo, uuid)
 	t.Run("Should return error if the cpf is not provided", func(t *testing.T) {
