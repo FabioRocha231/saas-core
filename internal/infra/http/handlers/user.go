@@ -125,9 +125,9 @@ func (h *UserHandler) GetByEmail(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewGetUserByEmailUsecase(h.userRepo, h.uuid, ctx)
+	uc := usecase.NewGetUserByEmailUsecase(h.userRepo, h.uuid)
 
-	output, err := uc.Execute(usecase.GetUserByEmailInput{Email: email})
+	output, err := uc.Execute(ctx, usecase.GetUserByEmailInput{Email: email})
 	if err != nil {
 		RespondErr(ctx, err)
 		return
