@@ -5,15 +5,16 @@ import (
 	"testing"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/entity"
+	"github.com/FabioRocha231/saas-core/test/testkit"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetUserByIdUsecase(t *testing.T) {
-	uuserRepo, uuid, userID, mockUserErr := BootstrapUser()
+	bs, mockUserErr := testkit.BootstrapUser()
 
 	assert.NoError(t, mockUserErr)
 
-	uc := NewGetUserByIdUsecase(uuserRepo, uuid)
+	uc := NewGetUserByIdUsecase(bs.UserRepo, bs.UUID)
 	t.Run("Should return error if the id is not provided", func(t *testing.T) {
 		_, err := uc.Execute(context.Background(), GetUserByIdInput{})
 		assert.Error(t, err)
@@ -33,9 +34,9 @@ func TestGetUserByIdUsecase(t *testing.T) {
 	})
 
 	t.Run("should return user if the correct id is provided", func(t *testing.T) {
-		output, err := uc.Execute(context.Background(), GetUserByIdInput{ID: userID})
+		output, err := uc.Execute(context.Background(), GetUserByIdInput{ID: bs.UserID})
 		assert.NoError(t, err)
-		assert.Equal(t, output.User.ID, userID)
+		assert.Equal(t, output.User.ID, bs.UserID)
 		assert.Equal(t, output.User.Name, "usuario teste")
 		assert.Equal(t, output.User.Email, "j0Btq@example.com")
 		assert.Equal(t, output.User.Cpf, "74444217065")
