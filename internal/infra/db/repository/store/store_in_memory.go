@@ -51,7 +51,7 @@ func (r *Repo) GetByID(ctx context.Context, id string) (*entity.Store, error) {
 
 	s, ok := r.byID[id]
 	if !ok {
-		return nil, errx.New(errx.CodeNotFound, "Store not found")
+		return nil, errx.New(errx.CodeNotFound, "store not found")
 	}
 
 	cp := *s
@@ -64,12 +64,12 @@ func (r *Repo) GetBySlug(ctx context.Context, slug string) (*entity.Store, error
 
 	id, ok := r.bySlug[slug]
 	if !ok || id == "" {
-		return nil, errx.New(errx.CodeNotFound, "Store not found")
+		return nil, errx.New(errx.CodeNotFound, "store not found")
 	}
 
 	s, ok := r.byID[id]
 	if !ok {
-		return nil, errx.New(errx.CodeNotFound, "Store not found")
+		return nil, errx.New(errx.CodeNotFound, "store not found")
 	}
 
 	cp := *s
