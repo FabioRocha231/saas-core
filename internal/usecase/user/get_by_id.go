@@ -10,27 +10,30 @@ import (
 )
 
 type GetUserByIdUsecase struct {
-	repo    repository.UserRepository
-	uuid    ports.UUIDInterface
-	context context.Context
+	repo repository.UserRepository
+	uuid ports.UUIDInterface
 }
 
 type GetUserByIdInput struct {
 	ID string
 }
 
-func NewGetUserByIdUsecase(repo repository.UserRepository, uuid ports.UUIDInterface, ctx context.Context) *GetUserByIdUsecase {
-	return &GetUserByIdUsecase{repo: repo, uuid: uuid, context: ctx}
+func NewGetUserByIdUsecase(repo repository.UserRepository, uuid ports.UUIDInterface) *GetUserByIdUsecase {
+	return &GetUserByIdUsecase{repo: repo, uuid: uuid}
 }
 
-func (u *GetUserByIdUsecase) Execute(input GetUserByIdInput) (*GetUserOutputDTO, error) {
+func (u *GetUserByIdUsecase) Execute(ctx context.Context, input GetUserByIdInput) (*GetUserOutputDTO, error) {
+	if input.ID == "" {
+		return nil, errx.New(errx.CodeInvalid, "invalid user id")
+	}
+
 	isUuid := u.uuid.Validate(input.ID)
 
 	if !isUuid {
-		return nil, errx.New(errx.CodeInvalid, "invalid id")
+		return nil, errx.New(errx.CodeInvalid, "invalid user id")
 	}
 
-	user, err := u.repo.GetByID(u.context, input.ID)
+	user, err := u.repo.GetByID(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}

@@ -106,9 +106,9 @@ func (h *UserHandler) GetByID(ctx *gin.Context) {
 		RespondErr(ctx, errx.New(errx.CodeInvalid, "missing id"))
 		return
 	}
-	uc := usecase.NewGetUserByIdUsecase(h.userRepo, h.uuid, ctx)
+	uc := usecase.NewGetUserByIdUsecase(h.userRepo, h.uuid)
 
-	output, err := uc.Execute(usecase.GetUserByIdInput{ID: id})
+	output, err := uc.Execute(ctx, usecase.GetUserByIdInput{ID: id})
 	if err != nil {
 		RespondErr(ctx, err)
 		return
