@@ -48,8 +48,8 @@ func (mch *MenuCategoryHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewCreateMenuCategoryUsecase(mch.menuCategoryRepository, mch.storeMenuRepo, mch.uuid, ctx)
-	output, err := uc.Execute(usecase.CreateMenuCategoryInput{Name: req.Name, IsActive: req.IsActive, MenuID: menuId})
+	uc := usecase.NewCreateMenuCategoryUsecase(mch.menuCategoryRepository, mch.storeMenuRepo, mch.uuid)
+	output, err := uc.Execute(ctx, usecase.CreateMenuCategoryInput{Name: req.Name, IsActive: req.IsActive, MenuID: menuId})
 	if err != nil {
 		RespondErr(ctx, err)
 		return

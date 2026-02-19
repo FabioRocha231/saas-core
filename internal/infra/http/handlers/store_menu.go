@@ -53,8 +53,8 @@ func (smh *StoreMenuHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewCreateStoreMenuUsecase(smh.storeRepository, smh.storeMenuRepository, smh.uuid, ctx)
-	output, err := uc.Execute(usecase.CreateStoreMenuInput{Name: req.Name, StoreID: storeId})
+	uc := usecase.NewCreateStoreMenuUsecase(smh.storeRepository, smh.storeMenuRepository, smh.uuid)
+	output, err := uc.Execute(ctx, usecase.CreateStoreMenuInput{Name: req.Name, StoreID: storeId})
 
 	if err != nil {
 		RespondErr(ctx, err)
@@ -72,8 +72,8 @@ func (smh *StoreMenuHandler) GetByID(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewGetStoreMenuByIDUsecase(smh.storeMenuRepository, ctx, smh.uuid)
-	output, err := uc.Execute(usecase.GetStoreMenuByIDInput{StoreMenuID: id})
+	uc := usecase.NewGetStoreMenuByIDUsecase(smh.storeMenuRepository, smh.uuid)
+	output, err := uc.Execute(ctx, usecase.GetStoreMenuByIDInput{StoreMenuID: id})
 
 	if err != nil {
 		RespondErr(ctx, err)
@@ -91,8 +91,8 @@ func (smh *StoreMenuHandler) ListByStoreID(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewListStoreMenuByStoreIDUsecase(smh.storeMenuRepository, ctx, smh.uuid)
-	output, err := uc.Execute(usecase.ListStoreMenuByStoreIDInput{StoreID: storeId})
+	uc := usecase.NewListStoreMenuByStoreIDUsecase(smh.storeMenuRepository, smh.uuid)
+	output, err := uc.Execute(ctx, usecase.ListStoreMenuByStoreIDInput{StoreID: storeId})
 
 	if err != nil {
 		RespondErr(ctx, err)

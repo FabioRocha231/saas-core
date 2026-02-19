@@ -33,7 +33,7 @@ func (r *Repo) Create(ctx context.Context, m *entity.StoreMenu) error {
 		return errx.New(errx.CodeInvalid, "missing id")
 	}
 	if m.StoreID == "" {
-		return errx.New(errx.CodeInvalid, "missing storeId")
+		return errx.New(errx.CodeInvalid, "missing store id")
 	}
 	if m.Name == "" {
 		return errx.New(errx.CodeInvalid, "missing name")
@@ -81,8 +81,14 @@ func (r *Repo) ListByStoreID(ctx context.Context, storeID string) ([]*entity.Sto
 	_ = ctx
 
 	if storeID == "" {
-		return nil, errx.New(errx.CodeInvalid, "missing storeId")
+		return nil, errx.New(errx.CodeInvalid, "missing store id")
 	}
+
+	r.mu.RLock()
+	if _, ok := r.byStore[storeID]; !ok {
+		return nil, errx.New(errx.CodeNotFound, "store not found")
+	}
+	r.mu.RUnlock()
 
 	r.mu.RLock()
 	ids := r.byStore[storeID]
