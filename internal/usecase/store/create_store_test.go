@@ -10,11 +10,12 @@ import (
 )
 
 func TestCreateStoreUsecase(t *testing.T) {
-	bs, mockUserError := testkit.BootstrapUser()
+	testEnv := testkit.NewEnv()
+	userID, mockUserError := testEnv.SeedUser(context.Background())
 	assert.NoError(t, mockUserError)
 	storeRepo := memorystore.New()
 
-	uc := NewCreateStoreUsecase(storeRepo, bs.UserRepo, bs.UUID)
+	uc := NewCreateStoreUsecase(storeRepo, testEnv.UserRepo, testEnv.UUID)
 
 	t.Run("Should return error if the name is not provided", func(t *testing.T) {
 		_, err := uc.Execute(context.Background(), CreateStoreInput{})
@@ -59,7 +60,7 @@ func TestCreateStoreUsecase(t *testing.T) {
 	})
 
 	t.Run("Should create store", func(t *testing.T) {
-		output, err := uc.Execute(context.Background(), CreateStoreInput{Name: "test", Cnpj: "65.921.814/0001-04", OwnerID: bs.UserID})
+		output, err := uc.Execute(context.Background(), CreateStoreInput{Name: "test", Cnpj: "65.921.814/0001-04", OwnerID: userID})
 		assert.NoError(t, err)
 		assert.NotNil(t, output.ID, "store id should not be empty")
 	})

@@ -4,29 +4,18 @@ import (
 	"context"
 	"testing"
 
-	"github.com/FabioRocha231/saas-core/internal/domain/entity"
-	memorystore "github.com/FabioRocha231/saas-core/internal/infra/db/repository/store"
 	"github.com/FabioRocha231/saas-core/test/testkit"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetStoreByIDUsecase(t *testing.T) {
-	bs, mockUserError := testkit.BootstrapUser()
+	testEnv := testkit.NewEnv()
+	userID, mockUserError := testEnv.SeedUser(context.Background())
 	assert.NoError(t, mockUserError)
-	storeRepo := memorystore.New()
+	storeID, mockStoreError := testEnv.SeedStore(context.Background(), userID)
+	assert.NoError(t, mockStoreError)
 
-	storeID := bs.UUID.Generate()
-	err := storeRepo.Create(context.Background(), &entity.Store{
-		ID:      storeID,
-		Name:    "test",
-		Cnpj:    "12345678901234",
-		OwnerID: bs.UserID,
-		IsOpen:  true,
-		Slug:    "test",
-	})
-	assert.NoError(t, err)
-
-	uc := NewGetStoreByIDUsecase(storeRepo, bs.UUID)
+	uc := NewGetStoreByIDUsecase(testEnv.StoreRepo, testEnv.UUID)
 
 	t.Run("Should return error if the id is not provided", func(t *testing.T) {
 		_, err := uc.Execute(context.Background(), GetStoreByIDInput{})
@@ -51,8 +40,8 @@ func TestGetStoreByIDUsecase(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, output.Store.ID, storeID)
 		assert.Equal(t, output.Store.Name, "test")
-		assert.Equal(t, output.Store.Cnpj, "12345678901234")
-		assert.Equal(t, output.Store.OwnerID, bs.UserID)
+		assert.Equal(t, output.Store.Cnpj, "46848972000131")
+		assert.Equal(t, output.Store.OwnerID, userID)
 		assert.Equal(t, output.Store.IsOpen, true)
 		assert.Equal(t, output.Store.Slug, "test")
 	})

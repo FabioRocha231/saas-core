@@ -10,11 +10,13 @@ import (
 )
 
 func TestGetUserByEmailUsecase(t *testing.T) {
-	bs, mockUserErr := testkit.BootstrapUser()
+	testEnv := testkit.NewEnv()
+
+	userID, mockUserErr := testEnv.SeedUser(context.Background())
 
 	assert.NoError(t, mockUserErr)
 
-	uc := NewGetUserByEmailUsecase(bs.UserRepo, bs.UUID)
+	uc := NewGetUserByEmailUsecase(testEnv.UserRepo, testEnv.UUID)
 	t.Run("Should return error if the email is not provided", func(t *testing.T) {
 		_, err := uc.Execute(context.Background(), GetUserByEmailInput{})
 		assert.Error(t, err)
@@ -30,7 +32,7 @@ func TestGetUserByEmailUsecase(t *testing.T) {
 	t.Run("should return user if the correct email is provided", func(t *testing.T) {
 		output, err := uc.Execute(context.Background(), GetUserByEmailInput{Email: "j0Btq@example.com"})
 		assert.NoError(t, err)
-		assert.Equal(t, output.User.ID, bs.UserID)
+		assert.Equal(t, output.User.ID, userID)
 		assert.Equal(t, output.User.Name, "usuario teste")
 		assert.Equal(t, output.User.Email, "j0Btq@example.com")
 		assert.Equal(t, output.User.Cpf, "74444217065")

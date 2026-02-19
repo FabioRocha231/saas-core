@@ -24,25 +24,27 @@ type CreateMenuCategoryUseCase struct {
 	menuCategoryRepo repository.MenuCategoryRepository
 	storeMenuRepo    repository.StoreMenuRepository
 	uuid             ports.UUIDInterface
-	context          context.Context
 }
 
-func NewCreateMenuCategoryUsecase(menuCategoryRepo repository.MenuCategoryRepository, storeMenuRepo repository.StoreMenuRepository, uuid ports.UUIDInterface, ctx context.Context) *CreateMenuCategoryUseCase {
+func NewCreateMenuCategoryUsecase(
+	menuCategoryRepo repository.MenuCategoryRepository,
+	storeMenuRepo repository.StoreMenuRepository,
+	uuid ports.UUIDInterface,
+) *CreateMenuCategoryUseCase {
 	return &CreateMenuCategoryUseCase{
 		menuCategoryRepo: menuCategoryRepo,
 		storeMenuRepo:    storeMenuRepo,
 		uuid:             uuid,
-		context:          ctx,
 	}
 }
 
-func (uc *CreateMenuCategoryUseCase) Execute(input CreateMenuCategoryInput) (*CreateMenuCategoryOutput, error) {
+func (uc *CreateMenuCategoryUseCase) Execute(context context.Context, input CreateMenuCategoryInput) (*CreateMenuCategoryOutput, error) {
 	isValidUUID := uc.uuid.Validate(input.MenuID)
 	if !isValidUUID {
 		return nil, errx.New(errx.CodeInvalid, "invalid menu id")
 	}
 
-	storeMenu, err := uc.storeMenuRepo.GetByID(uc.context, input.MenuID)
+	storeMenu, err := uc.storeMenuRepo.GetByID(context, input.MenuID)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +58,7 @@ func (uc *CreateMenuCategoryUseCase) Execute(input CreateMenuCategoryInput) (*Cr
 		UpdatedAt: time.Now(),
 	}
 
-	createErr := uc.menuCategoryRepo.Create(uc.context, menuCategory)
+	createErr := uc.menuCategoryRepo.Create(context, menuCategory)
 	if createErr != nil {
 		return nil, createErr
 	}

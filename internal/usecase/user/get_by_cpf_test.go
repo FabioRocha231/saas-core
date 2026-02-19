@@ -10,11 +10,13 @@ import (
 )
 
 func TestGetUserByCpf(t *testing.T) {
-	bs, mockUserErr := testkit.BootstrapUser()
+	testEnv := testkit.NewEnv()
+
+	userID, mockUserErr := testEnv.SeedUser(context.Background())
 
 	assert.NoError(t, mockUserErr)
 
-	uc := NewGetUserByCpfUsecase(bs.UserRepo, bs.UUID)
+	uc := NewGetUserByCpfUsecase(testEnv.UserRepo, testEnv.UUID)
 	t.Run("Should return error if the cpf is not provided", func(t *testing.T) {
 		_, err := uc.Execute(context.Background(), GetUserByCpfInput{})
 		assert.Error(t, err)
@@ -42,7 +44,7 @@ func TestGetUserByCpf(t *testing.T) {
 	t.Run("should return the correct user", func(t *testing.T) {
 		output, err := uc.Execute(context.Background(), GetUserByCpfInput{Cpf: "74444217065"})
 		assert.NoError(t, err)
-		assert.Equal(t, output.User.ID, bs.UserID)
+		assert.Equal(t, output.User.ID, userID)
 		assert.Equal(t, output.User.Name, "usuario teste")
 		assert.Equal(t, output.User.Email, "j0Btq@example.com")
 		assert.Equal(t, output.User.Cpf, "74444217065")
