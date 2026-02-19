@@ -17,7 +17,6 @@ type CreateUserUsecase struct {
 	storeRepo    repository.StoreRepository
 	uuid         ports.UUIDInterface
 	passwordHash ports.PasswordHashInterface
-	context      context.Context
 }
 
 type CreateUserInput struct {
@@ -37,7 +36,6 @@ type CreateUserOutput struct {
 func NewCreateUserUsecase(
 	userRepo repository.UserRepository,
 	storeRepo repository.StoreRepository,
-	ctx context.Context,
 	uuid ports.UUIDInterface,
 	passwordHash ports.PasswordHashInterface,
 ) *CreateUserUsecase {
@@ -46,11 +44,33 @@ func NewCreateUserUsecase(
 		storeRepo:    storeRepo,
 		uuid:         uuid,
 		passwordHash: passwordHash,
-		context:      ctx,
 	}
 }
 
-func (uc *CreateUserUsecase) Execute(input CreateUserInput) (*CreateUserOutput, error) {
+func (uc *CreateUserUsecase) Execute(context context.Context, input CreateUserInput) (*CreateUserOutput, error) {
+	if input.Name == "" {
+		return nil, errx.New(errx.CodeInvalid, "invalid name")
+	}
+
+	if input.Email == "" {
+		return nil, errx.New(errx.CodeInvalid, "invalid email")
+	}
+
+	if input.Password == "" {
+		return nil, errx.New(errx.CodeInvalid, "invalid password")
+	}
+
+	if input.StoreId != nil {
+		_, err := uc.storeRepo.GetByID(context, *input.StoreId)
+		if err != nil {
+			return nil, errx.New(errx.CodeNotFound, "store not found")
+		}
+	}
+
+	if input.Cpf == "" {
+		return nil, errx.New(errx.CodeInvalid, "invalid cpf")
+	}
+
 	cpf := valueobject.NewCpf(input.Cpf)
 	if err := cpf.Validate(); err != nil {
 		return nil, errx.New(errx.CodeInvalid, "invalid cpf")
@@ -82,7 +102,7 @@ func (uc *CreateUserUsecase) Execute(input CreateUserInput) (*CreateUserOutput, 
 	}
 	user.Password = hash
 
-	if err := uc.userRepo.Create(uc.context, user); err != nil {
+	if err := uc.userRepo.Create(context, user); err != nil {
 		return nil, err
 	}
 

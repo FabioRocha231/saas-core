@@ -2,6 +2,8 @@ package usecase
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 	ports "github.com/FabioRocha231/saas-core/internal/port"
@@ -10,7 +12,6 @@ import (
 
 type ListStoreMenuByStoreIDUsecase struct {
 	storeMenuRepository repository.StoreMenuRepository
-	context             context.Context
 	uuid                ports.UUIDInterface
 }
 
@@ -31,23 +32,27 @@ type ListStoreMenuByStoreIDOutput struct {
 
 func NewListStoreMenuByStoreIDUsecase(
 	storeMenuRepository repository.StoreMenuRepository,
-	ctx context.Context,
 	uuid ports.UUIDInterface,
 ) *ListStoreMenuByStoreIDUsecase {
 	return &ListStoreMenuByStoreIDUsecase{
 		storeMenuRepository: storeMenuRepository,
-		context:             ctx,
 		uuid:                uuid,
 	}
 }
 
-func (uc *ListStoreMenuByStoreIDUsecase) Execute(input ListStoreMenuByStoreIDInput) (*ListStoreMenuByStoreIDOutput, error) {
-	isValidUuid := uc.uuid.Validate(input.StoreID)
-	if !isValidUuid {
-		return nil, errx.New(errx.CodeInvalid, "invalid storeId")
+func (uc *ListStoreMenuByStoreIDUsecase) Execute(context context.Context, input ListStoreMenuByStoreIDInput) (*ListStoreMenuByStoreIDOutput, error) {
+	storeID := strings.TrimSpace(input.StoreID)
+
+	if storeID == "" {
+		return nil, errx.New(errx.CodeInvalid, "store id are required")
 	}
 
-	storeMenus, err := uc.storeMenuRepository.ListByStoreID(uc.context, input.StoreID)
+	if isValidUuid := uc.uuid.Validate(storeID); !isValidUuid {
+		return nil, errx.New(errx.CodeInvalid, "invalid store id")
+	}
+
+	storeMenus, err := uc.storeMenuRepository.ListByStoreID(context, storeID)
+	fmt.Println(storeMenus, err, "que diabo e isso")
 	if err != nil {
 		return nil, err
 	}

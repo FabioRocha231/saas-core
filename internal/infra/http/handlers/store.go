@@ -8,7 +8,7 @@ import (
 	"github.com/FabioRocha231/saas-core/internal/infra/http/helper"
 
 	ports "github.com/FabioRocha231/saas-core/internal/port"
-	portsRepository "github.com/FabioRocha231/saas-core/internal/port/repository"
+	"github.com/FabioRocha231/saas-core/internal/port/repository"
 	usecase "github.com/FabioRocha231/saas-core/internal/usecase/store"
 	"github.com/gin-gonic/gin"
 )
@@ -19,12 +19,21 @@ type CreateStoreRequest struct {
 }
 
 type StoreHandler struct {
-	storeRepository portsRepository.StoreRepository
-	uuid            ports.UUIDInterface
+	storeRepo repository.StoreRepository
+	userRepo  repository.UserRepository
+	uuid      ports.UUIDInterface
 }
 
-func NewStoreHandler(repo portsRepository.StoreRepository, uuid ports.UUIDInterface) *StoreHandler {
-	return &StoreHandler{storeRepository: repo, uuid: uuid}
+func NewStoreHandler(
+	storeRepo repository.StoreRepository,
+	userRepo repository.UserRepository,
+	uuid ports.UUIDInterface,
+) *StoreHandler {
+	return &StoreHandler{
+		storeRepo: storeRepo,
+		userRepo:  userRepo,
+		uuid:      uuid,
+	}
 }
 
 // TODO pedir endereço para cadastro
@@ -51,8 +60,8 @@ func (sh *StoreHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewCreateStoreUsecase(sh.storeRepository, ctx, sh.uuid)
-	output, err := uc.Execute(usecase.CreateStoreInput{
+	uc := usecase.NewCreateStoreUsecase(sh.storeRepo, sh.userRepo, sh.uuid)
+	output, err := uc.Execute(ctx, usecase.CreateStoreInput{
 		Name:    req.Name,
 		Cnpj:    req.Cnpj,
 		OwnerID: userID,
@@ -67,18 +76,19 @@ func (sh *StoreHandler) Create(ctx *gin.Context) {
 }
 
 func (sh *StoreHandler) GetByID(ctx *gin.Context) {
-	id := ctx.Param("id")
+	storeID := strings.TrimSpace(ctx.Param("id"))
 
-	if id == "" {
-		RespondErr(ctx, errx.New(errx.CodeInvalid, "missing id"))
+	if storeID == "" {
+		RespondErr(ctx, errx.New(errx.CodeInvalid, "missing store id"))
 		return
 	}
 
-	store, err := sh.storeRepository.GetByID(ctx, id)
+	uc := usecase.NewGetStoreByIDUsecase(sh.storeRepo, sh.uuid)
+	output, err := uc.Execute(ctx, usecase.GetStoreByIDInput{StoreID: storeID})
 	if err != nil {
 		RespondErr(ctx, err)
 		return
 	}
 
-	RespondOK(ctx, http.StatusOK, store)
+	RespondOK(ctx, http.StatusOK, output)
 }
