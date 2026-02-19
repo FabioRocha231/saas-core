@@ -64,7 +64,7 @@ func RegisterRoutes(engine *gin.Engine) {
 
 	jwtService := pkg.NewJwtService(os.Getenv("JWT_SECRET"), 24*time.Hour, "saas-core", uuid)
 
-	storeHandler := handlers.NewStoreHandler(storeRepo, uuid)
+	storeHandler := handlers.NewStoreHandler(storeRepo, userRepo, uuid)
 	userHandler := handlers.NewUserHandler(userRepo, storeRepo, uuid, passwordHash)
 	authHandler := handlers.NewAuthHandler(passwordHash, jwtService, userRepo, sessionRepo, storeRepo)
 	storeMenuHandler := handlers.NewStoreMenuHandler(storeRepo, storeMenuRepo, uuid)
