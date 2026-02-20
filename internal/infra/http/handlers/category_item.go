@@ -19,10 +19,10 @@ type CategoryItemHandler struct {
 
 type CreateCategoryItemRequest struct {
 	Name        string `json:"name"`
-	Description string `json:"description" binding:"required"`
-	BasePrice   int64  `json:"base_price" binding:"required"`
+	Description string `json:"description"`
+	BasePrice   int64  `json:"base_price"`
 	ImageURL    string `json:"image_url"`
-	IsActive    bool   `json:"is_active" binding:"required"`
+	IsActive    bool   `json:"is_active"`
 }
 
 func NewCategoryItemHandler(categoryItemRepo repository.CategoryItemRepository, menuCategoryRepo repository.MenuCategoryRepository, uuid ports.UUIDInterface) *CategoryItemHandler {
@@ -56,15 +56,18 @@ func (cih *CategoryItemHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewCreateCategoryItemUsecase(cih.categoryItemRepo, cih.menuCategoryRepo, cih.uuid, ctx)
-	output, err := uc.Execute(usecase.CreateCategoryItemInput{
-		Name:        req.Name,
-		Description: req.Description,
-		BasePrice:   req.BasePrice,
-		ImageURL:    req.ImageURL,
-		IsActive:    req.IsActive,
-		CategoryID:  categoryID,
-	})
+	uc := usecase.NewCreateCategoryItemUsecase(cih.categoryItemRepo, cih.menuCategoryRepo, cih.uuid)
+	output, err := uc.Execute(
+		ctx,
+		usecase.CreateCategoryItemInput{
+			Name:        req.Name,
+			Description: req.Description,
+			BasePrice:   req.BasePrice,
+			ImageURL:    req.ImageURL,
+			IsActive:    req.IsActive,
+			CategoryID:  categoryID,
+		},
+	)
 	if err != nil {
 		RespondErr(ctx, err)
 		return
@@ -80,8 +83,8 @@ func (cih *CategoryItemHandler) GetByID(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewGetCategoryItemByIDUsecase(cih.categoryItemRepo, cih.uuid, ctx)
-	output, err := uc.Execute(usecase.GetCategoryItemByIDInput{ID: id})
+	uc := usecase.NewGetCategoryItemByIDUsecase(cih.categoryItemRepo, cih.uuid)
+	output, err := uc.Execute(ctx, usecase.GetCategoryItemByIDInput{ID: id})
 	if err != nil {
 		RespondErr(ctx, err)
 		return
@@ -97,8 +100,8 @@ func (cih *CategoryItemHandler) ListByCategoryID(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewListCategoryItemsByCategoryIDUsecase(cih.categoryItemRepo, cih.menuCategoryRepo, cih.uuid, ctx)
-	output, err := uc.Execute(usecase.ListCategoryItemsByCategoryIDInput{CategoryID: categoryID})
+	uc := usecase.NewListCategoryItemsByCategoryIDUsecase(cih.categoryItemRepo, cih.menuCategoryRepo, cih.uuid)
+	output, err := uc.Execute(ctx, usecase.ListCategoryItemsByCategoryIDInput{CategoryID: categoryID})
 	if err != nil {
 		RespondErr(ctx, err)
 		return

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/entity"
@@ -27,39 +28,51 @@ type CreateCategoryItemUsecase struct {
 	categoryItemRepo repository.CategoryItemRepository
 	menuCategoryRepo repository.MenuCategoryRepository
 	uuid             ports.UUIDInterface
-	context          context.Context
 }
 
 func NewCreateCategoryItemUsecase(
 	categoryItemRepo repository.CategoryItemRepository,
 	menuCategoryRepo repository.MenuCategoryRepository,
 	uuid ports.UUIDInterface,
-	context context.Context,
 ) *CreateCategoryItemUsecase {
 	return &CreateCategoryItemUsecase{
 		categoryItemRepo: categoryItemRepo,
 		menuCategoryRepo: menuCategoryRepo,
 		uuid:             uuid,
-		context:          context,
 	}
 }
 
-func (uc *CreateCategoryItemUsecase) Execute(input CreateCategoryItemInput) (*CreateCategoryItemOutput, error) {
-	isValidUuid := uc.uuid.Validate(input.CategoryID)
+func (uc *CreateCategoryItemUsecase) Execute(context context.Context, input CreateCategoryItemInput) (*CreateCategoryItemOutput, error) {
+	categoryID := strings.TrimSpace(input.CategoryID)
+	categoryItemName := strings.TrimSpace(input.Name)
+	categoryItemDescription := strings.TrimSpace(input.Description)
+
+	if categoryItemName == "" {
+		return nil, errx.New(errx.CodeInvalid, "category item name are required")
+	}
+	if categoryItemDescription == "" {
+		return nil, errx.New(errx.CodeInvalid, "category item description are required")
+	}
+
+	if categoryID == "" {
+		return nil, errx.New(errx.CodeInvalid, "category id are required")
+	}
+
+	isValidUuid := uc.uuid.Validate(categoryID)
 	if !isValidUuid {
 		return nil, errx.New(errx.CodeInvalid, "invalid category id")
 	}
 
-	category, err := uc.menuCategoryRepo.GetByID(uc.context, input.CategoryID)
+	category, err := uc.menuCategoryRepo.GetByID(context, categoryID)
 	if err != nil {
-		return nil, errx.New(errx.CodeNotFound, "category not found")
+		return nil, err
 	}
 
 	itemCategory := &entity.CategoryItem{
 		ID:          uc.uuid.Generate(),
 		CategoryID:  category.ID,
-		Name:        input.Name,
-		Description: input.Description,
+		Name:        categoryItemName,
+		Description: categoryItemDescription,
 		BasePrice:   input.BasePrice,
 		ImageURL:    input.ImageURL,
 		IsActive:    input.IsActive,
@@ -67,7 +80,7 @@ func (uc *CreateCategoryItemUsecase) Execute(input CreateCategoryItemInput) (*Cr
 		UpdatedAt:   time.Now(),
 	}
 
-	err = uc.categoryItemRepo.Create(uc.context, itemCategory)
+	err = uc.categoryItemRepo.Create(context, itemCategory)
 	if err != nil {
 		return nil, err
 	}

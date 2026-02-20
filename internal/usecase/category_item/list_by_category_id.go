@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"strings"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 	ports "github.com/FabioRocha231/saas-core/internal/port"
@@ -30,35 +31,36 @@ type ListCategoryItemsByCategoryIDUsecase struct {
 	categoryItemRepo repository.CategoryItemRepository
 	menuCategoryRepo repository.MenuCategoryRepository
 	uuid             ports.UUIDInterface
-	context          context.Context
 }
 
 func NewListCategoryItemsByCategoryIDUsecase(
 	categoryItemRepo repository.CategoryItemRepository,
 	menuCategoryRepo repository.MenuCategoryRepository,
 	uuid ports.UUIDInterface,
-	context context.Context,
 ) *ListCategoryItemsByCategoryIDUsecase {
 	return &ListCategoryItemsByCategoryIDUsecase{
 		categoryItemRepo: categoryItemRepo,
 		menuCategoryRepo: menuCategoryRepo,
 		uuid:             uuid,
-		context:          context,
 	}
 }
 
-func (uc *ListCategoryItemsByCategoryIDUsecase) Execute(input ListCategoryItemsByCategoryIDInput) (*ListCategoryItemsByCategoryIDOutput, error) {
-	isValidUuid := uc.uuid.Validate(input.CategoryID)
-	if !isValidUuid {
+func (uc *ListCategoryItemsByCategoryIDUsecase) Execute(context context.Context, input ListCategoryItemsByCategoryIDInput) (*ListCategoryItemsByCategoryIDOutput, error) {
+	categoryID := strings.TrimSpace(input.CategoryID)
+	if categoryID == "" {
+		return nil, errx.New(errx.CodeInvalid, "category id are required")
+	}
+
+	if isValidUuid := uc.uuid.Validate(categoryID); !isValidUuid {
 		return nil, errx.New(errx.CodeInvalid, "invalid category id")
 	}
 
-	_, err := uc.menuCategoryRepo.GetByID(uc.context, input.CategoryID)
+	_, err := uc.menuCategoryRepo.GetByID(context, categoryID)
 	if err != nil {
 		return nil, err
 	}
 
-	items, err := uc.categoryItemRepo.ListByCategoryID(uc.context, input.CategoryID)
+	items, err := uc.categoryItemRepo.ListByCategoryID(context, categoryID)
 	if err != nil {
 		return nil, err
 	}
