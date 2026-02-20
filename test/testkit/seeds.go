@@ -53,3 +53,16 @@ func (e *Env) SeedStoreMenu(ctx context.Context, storeID string) (menuID string,
 	})
 	return
 }
+
+func (e *Env) SeedMenuCategory(ctx context.Context, menuID string) (catID string, err error) {
+	catID = e.UUID.Generate()
+	err = e.MenuCategoryRepo.Create(ctx, &entity.MenuCategory{
+		ID:        catID,
+		Name:      "test",
+		MenuID:    menuID,
+		IsActive:  true,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	})
+	return
+}
