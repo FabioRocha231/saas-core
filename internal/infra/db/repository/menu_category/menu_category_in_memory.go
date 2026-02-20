@@ -33,7 +33,7 @@ func (r *Repo) Create(ctx context.Context, c *entity.MenuCategory) error {
 		return errx.New(errx.CodeInvalid, "missing id")
 	}
 	if c.MenuID == "" {
-		return errx.New(errx.CodeInvalid, "missing menuId")
+		return errx.New(errx.CodeInvalid, "missing menu id")
 	}
 	if c.Name == "" {
 		return errx.New(errx.CodeInvalid, "missing name")
@@ -81,7 +81,7 @@ func (r *Repo) ListByMenuID(ctx context.Context, menuID string) ([]*entity.MenuC
 	_ = ctx
 
 	if menuID == "" {
-		return nil, errx.New(errx.CodeInvalid, "missing menuId")
+		return nil, errx.New(errx.CodeInvalid, "missing menu id")
 	}
 
 	r.mu.RLock()
