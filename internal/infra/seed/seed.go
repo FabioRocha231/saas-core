@@ -54,7 +54,7 @@ func Seed(
 	addonGroupRepo repository.ItemAddonGroupRepository,
 	addonOptionRepo repository.AddonOptionRepository,
 	variantGroupRepo repository.ItemVariantGroupRepository,
-	variantOptionRepo repository.VariantOptionRepository, // <- ADICIONADO
+	variantOptionRepo repository.VariantOptionRepository,
 	password ports.PasswordHashInterface,
 ) {
 	if os.Getenv("APP_ENV") != "dev" {
@@ -158,7 +158,7 @@ func Seed(
 			addonGroupRepo,
 			addonOptionRepo,
 			variantGroupRepo,
-			variantOptionRepo, // <- PASSADO
+			variantOptionRepo,
 			now,
 			m.ID,
 		)
@@ -174,7 +174,7 @@ func seedCategoriesItemsGroupsAndOptions(
 	addonGroupRepo repository.ItemAddonGroupRepository,
 	addonOptionRepo repository.AddonOptionRepository,
 	variantGroupRepo repository.ItemVariantGroupRepository,
-	variantOptionRepo repository.VariantOptionRepository, // <- ADICIONADO
+	variantOptionRepo repository.VariantOptionRepository,
 	now time.Time,
 	menuID string,
 ) {

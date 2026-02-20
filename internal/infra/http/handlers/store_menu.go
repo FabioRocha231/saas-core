@@ -91,7 +91,7 @@ func (smh *StoreMenuHandler) ListByStoreID(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewListStoreMenuByStoreIDUsecase(smh.storeMenuRepository, smh.uuid)
+	uc := usecase.NewListStoreMenuByStoreIDUsecase(smh.storeMenuRepository, smh.storeRepository, smh.uuid)
 	output, err := uc.Execute(ctx, usecase.ListStoreMenuByStoreIDInput{StoreID: storeId})
 
 	if err != nil {
