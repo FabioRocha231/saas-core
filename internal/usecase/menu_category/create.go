@@ -51,8 +51,7 @@ func (uc *CreateMenuCategoryUseCase) Execute(context context.Context, input Crea
 		return nil, errx.New(errx.CodeInvalid, "menu id are required")
 	}
 
-	isValidUUID := uc.uuid.Validate(menuID)
-	if !isValidUUID {
+	if isValidUUID := uc.uuid.Validate(menuID); !isValidUUID {
 		return nil, errx.New(errx.CodeInvalid, "invalid menu id")
 	}
 
