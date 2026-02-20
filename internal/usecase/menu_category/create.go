@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/entity"
@@ -39,12 +40,23 @@ func NewCreateMenuCategoryUsecase(
 }
 
 func (uc *CreateMenuCategoryUseCase) Execute(context context.Context, input CreateMenuCategoryInput) (*CreateMenuCategoryOutput, error) {
-	isValidUUID := uc.uuid.Validate(input.MenuID)
+	menuID := strings.TrimSpace(input.MenuID)
+	menuCategoryName := strings.TrimSpace(input.Name)
+
+	if menuCategoryName == "" {
+		return nil, errx.New(errx.CodeInvalid, "menu category name are required")
+	}
+
+	if menuID == "" {
+		return nil, errx.New(errx.CodeInvalid, "menu id are required")
+	}
+
+	isValidUUID := uc.uuid.Validate(menuID)
 	if !isValidUUID {
 		return nil, errx.New(errx.CodeInvalid, "invalid menu id")
 	}
 
-	storeMenu, err := uc.storeMenuRepo.GetByID(context, input.MenuID)
+	storeMenu, err := uc.storeMenuRepo.GetByID(context, menuID)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +64,7 @@ func (uc *CreateMenuCategoryUseCase) Execute(context context.Context, input Crea
 	menuCategory := &entity.MenuCategory{
 		ID:        uc.uuid.Generate(),
 		MenuID:    storeMenu.ID,
-		Name:      input.Name,
+		Name:      menuCategoryName,
 		IsActive:  input.IsActive,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
