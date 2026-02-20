@@ -1,6 +1,7 @@
 package testkit
 
 import (
+	memorycategoryitem "github.com/FabioRocha231/saas-core/internal/infra/db/repository/category_item"
 	memorymenucategory "github.com/FabioRocha231/saas-core/internal/infra/db/repository/menu_category"
 	memorystore "github.com/FabioRocha231/saas-core/internal/infra/db/repository/store"
 	memorystoremenu "github.com/FabioRocha231/saas-core/internal/infra/db/repository/store_menu"
@@ -16,6 +17,7 @@ type Env struct {
 	StoreRepo        repository.StoreRepository
 	StoreMenuRepo    repository.StoreMenuRepository
 	MenuCategoryRepo repository.MenuCategoryRepository
+	CategoryItemRepo repository.CategoryItemRepository
 }
 
 func NewEnv() *Env {
@@ -23,11 +25,13 @@ func NewEnv() *Env {
 	storeRepo := memorystore.New()
 	storeMenuRepo := memorystoremenu.New()
 	menuCategoryRepo := memorymenucategory.New()
+	categoryItemRepo := memorycategoryitem.New()
 	return &Env{
 		UUID:             pkg.NewUUID(),
 		UserRepo:         userRepo,
 		StoreRepo:        storeRepo,
 		StoreMenuRepo:    storeMenuRepo,
 		MenuCategoryRepo: menuCategoryRepo,
+		CategoryItemRepo: categoryItemRepo,
 	}
 }
