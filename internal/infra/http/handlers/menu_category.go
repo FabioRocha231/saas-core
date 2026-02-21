@@ -65,8 +65,8 @@ func (mch *MenuCategoryHandler) GetByID(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewGetMenuCategoryByIDUseCase(mch.menuCategoryRepository, mch.uuid, ctx)
-	output, err := uc.Execute(usecase.GetMenuCategoryByIDInput{ID: id})
+	uc := usecase.NewGetMenuCategoryByIDUsecase(mch.menuCategoryRepository, mch.uuid)
+	output, err := uc.Execute(ctx, usecase.GetMenuCategoryByIDInput{ID: id})
 	if err != nil {
 		RespondErr(ctx, err)
 		return
@@ -82,8 +82,8 @@ func (mch *MenuCategoryHandler) ListByMenuID(ctx *gin.Context) {
 		return
 	}
 
-	uc := usecase.NewListMenuCategoriesByMenuIdUsecase(mch.storeMenuRepo, mch.menuCategoryRepository, ctx, mch.uuid)
-	output, err := uc.Execute(usecase.ListMenuCategoriesByMenuIdInput{MenuID: menuId})
+	uc := usecase.NewListMenuCategoriesByMenuIDUsecase(mch.storeMenuRepo, mch.menuCategoryRepository, mch.uuid)
+	output, err := uc.Execute(ctx, usecase.ListMenuCategoriesByMenuIDInput{MenuID: menuId})
 	if err != nil {
 		RespondErr(ctx, err)
 		return

@@ -2,13 +2,14 @@ package usecase
 
 import (
 	"context"
+	"strings"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/errx"
 	ports "github.com/FabioRocha231/saas-core/internal/port"
 	"github.com/FabioRocha231/saas-core/internal/port/repository"
 )
 
-type ListMenuCategoriesByMenuIdInput struct {
+type ListMenuCategoriesByMenuIDInput struct {
 	MenuID string
 }
 
@@ -19,43 +20,44 @@ type MenuCategories struct {
 	IsActive bool   `json:"is_active"`
 }
 
-type ListMenuCategoriesByMenuIdOutput struct {
+type ListMenuCategoriesByMenuIDOutput struct {
 	Categories []*MenuCategories `json:"categories"`
 }
 
 type ListMenuCategoriesByMenuIdUseCase struct {
 	storeMenuRepo    repository.StoreMenuRepository
 	menuCategoryRepo repository.MenuCategoryRepository
-	context          context.Context
 	uuid             ports.UUIDInterface
 }
 
-func NewListMenuCategoriesByMenuIdUsecase(
+func NewListMenuCategoriesByMenuIDUsecase(
 	storeMenuRepo repository.StoreMenuRepository,
 	menuCategoryRepo repository.MenuCategoryRepository,
-	context context.Context,
 	uuid ports.UUIDInterface,
 ) *ListMenuCategoriesByMenuIdUseCase {
 	return &ListMenuCategoriesByMenuIdUseCase{
 		storeMenuRepo:    storeMenuRepo,
 		menuCategoryRepo: menuCategoryRepo,
-		context:          context,
 		uuid:             uuid,
 	}
 }
 
-func (uc *ListMenuCategoriesByMenuIdUseCase) Execute(input ListMenuCategoriesByMenuIdInput) (*ListMenuCategoriesByMenuIdOutput, error) {
-	isValidUUID := uc.uuid.Validate(input.MenuID)
-	if !isValidUUID {
+func (uc *ListMenuCategoriesByMenuIdUseCase) Execute(context context.Context, input ListMenuCategoriesByMenuIDInput) (*ListMenuCategoriesByMenuIDOutput, error) {
+	menuID := strings.TrimSpace(input.MenuID)
+	if menuID == "" {
+		return nil, errx.New(errx.CodeInvalid, "menu id are required")
+	}
+
+	if isValidUUID := uc.uuid.Validate(menuID); !isValidUUID {
 		return nil, errx.New(errx.CodeInvalid, "invalid menu id")
 	}
 
-	menu, err := uc.storeMenuRepo.GetByID(uc.context, input.MenuID)
+	menu, err := uc.storeMenuRepo.GetByID(context, menuID)
 	if err != nil {
 		return nil, err
 	}
 
-	categories, err := uc.menuCategoryRepo.ListByMenuID(uc.context, menu.ID)
+	categories, err := uc.menuCategoryRepo.ListByMenuID(context, menu.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +72,7 @@ func (uc *ListMenuCategoriesByMenuIdUseCase) Execute(input ListMenuCategoriesByM
 		})
 	}
 
-	return &ListMenuCategoriesByMenuIdOutput{
+	return &ListMenuCategoriesByMenuIDOutput{
 		Categories: outputCategories,
 	}, nil
 }

@@ -17,7 +17,7 @@ func TestListStoreMenuByStoreIDUsecase(t *testing.T) {
 	_, mockStoreMenuErr := testEnv.SeedStoreMenu(context.Background(), storeID)
 	assert.NoError(t, mockStoreMenuErr)
 
-	uc := NewListStoreMenuByStoreIDUsecase(testEnv.StoreMenuRepo, testEnv.UUID)
+	uc := NewListStoreMenuByStoreIDUsecase(testEnv.StoreMenuRepo, testEnv.StoreRepo, testEnv.UUID)
 
 	t.Run("Should return error if the id is not provided", func(t *testing.T) {
 		_, err := uc.Execute(context.Background(), ListStoreMenuByStoreIDInput{})

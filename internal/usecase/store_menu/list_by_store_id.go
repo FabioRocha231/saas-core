@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/FabioRocha231/saas-core/internal/domain/errx"
@@ -12,6 +11,7 @@ import (
 
 type ListStoreMenuByStoreIDUsecase struct {
 	storeMenuRepository repository.StoreMenuRepository
+	storeRepository     repository.StoreRepository
 	uuid                ports.UUIDInterface
 }
 
@@ -32,10 +32,12 @@ type ListStoreMenuByStoreIDOutput struct {
 
 func NewListStoreMenuByStoreIDUsecase(
 	storeMenuRepository repository.StoreMenuRepository,
+	storeRepository repository.StoreRepository,
 	uuid ports.UUIDInterface,
 ) *ListStoreMenuByStoreIDUsecase {
 	return &ListStoreMenuByStoreIDUsecase{
 		storeMenuRepository: storeMenuRepository,
+		storeRepository:     storeRepository,
 		uuid:                uuid,
 	}
 }
@@ -51,13 +53,19 @@ func (uc *ListStoreMenuByStoreIDUsecase) Execute(context context.Context, input 
 		return nil, errx.New(errx.CodeInvalid, "invalid store id")
 	}
 
+	if _, err := uc.storeRepository.GetByID(context, storeID); err != nil {
+		return nil, err
+	}
+
 	storeMenus, err := uc.storeMenuRepository.ListByStoreID(context, storeID)
-	fmt.Println(storeMenus, err, "que diabo e isso")
+
 	if err != nil {
 		return nil, err
 	}
 
-	var output ListStoreMenuByStoreIDOutput
+	output := ListStoreMenuByStoreIDOutput{
+		Menus: make([]StoreMenu, 0, len(storeMenus)),
+	}
 	for _, menu := range storeMenus {
 		output.Menus = append(output.Menus, StoreMenu{
 			ID:       menu.ID,

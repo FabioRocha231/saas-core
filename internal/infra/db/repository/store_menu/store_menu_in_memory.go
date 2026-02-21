@@ -85,12 +85,6 @@ func (r *Repo) ListByStoreID(ctx context.Context, storeID string) ([]*entity.Sto
 	}
 
 	r.mu.RLock()
-	if _, ok := r.byStore[storeID]; !ok {
-		return nil, errx.New(errx.CodeNotFound, "store not found")
-	}
-	r.mu.RUnlock()
-
-	r.mu.RLock()
 	ids := r.byStore[storeID]
 	out := make([]*entity.StoreMenu, 0, len(ids))
 	for _, id := range ids {
